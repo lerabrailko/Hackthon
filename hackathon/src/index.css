@@ -1,8 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-/* =========================================
-   1. VARIABLES & THEMES
-   ========================================= */
+/* Кольорова тема по дефолту (темна) */
 :root {
   --bg-dark: #09090b;
   --bg-panel: #18181b;
@@ -17,6 +15,7 @@
   --danger: #ef4444;
 }
 
+/* Світла тема (перебиває темну) */
 body.light-theme {
   --bg-dark: #f4f4f5;
   --bg-panel: #ffffff;
@@ -27,9 +26,7 @@ body.light-theme {
   --border: #d4d4d8;
 }
 
-/* =========================================
-   2. GLOBAL STYLES & ANIMATIONS
-   ========================================= */
+/* Скидаємо базові відступи шоб нічого не їхало */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -44,10 +41,12 @@ body {
   overflow-x: hidden;
 }
 
+/* Кастомний скролбар (тільки для Chrome/Safari) */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
 
+/* Анімації появи елементів (плавний виїзд під час рендеру) */
 .animate-in { animation: fadeIn 0.3s ease forwards; }
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
@@ -60,9 +59,7 @@ body {
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* =========================================
-   3. MAIN LAYOUT (SIDEBAR & CONTENT)
-   ========================================= */
+/* Головний контейнер апки - тримає сайдбар і контент */
 .app-layout {
   display: flex;
   height: 100vh;
@@ -98,6 +95,7 @@ body {
   padding-top: 72px;
 }
 
+/* Бокова менюшка (Сайдбар) */
 .app-sidebar {
   width: 220px;
   background-color: var(--bg-panel);
@@ -271,9 +269,6 @@ body {
   background-color: rgba(239, 68, 68, 0.1);
 }
 
-/* =========================================
-   4. UI COMPONENTS (SETTINGS, FORMS)
-   ========================================= */
 .settings-container { flex: 1; overflow-y: auto; padding: 32px; padding-top: 72px; }
 .auth-wrapper { height: 100%; overflow-y: auto; padding: 24px; display: flex; justify-content: center; align-items: center; }
 
@@ -330,9 +325,6 @@ input:checked + .slider:before { transform: translateX(20px); background-color: 
 .avatar-preview { width: 80px; height: 80px; border-radius: 50%; background-color: var(--bg-card); border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; cursor: pointer; }
 .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
 
-/* =========================================
-   5. NOTIFICATIONS & TOASTS
-   ========================================= */
 .top-bar-controls { position: fixed; top: 16px; right: 32px; z-index: 200; }
 .notif-center-wrapper { position: relative; display: inline-flex; align-items: center; }
 
@@ -390,9 +382,6 @@ input:checked + .slider:before { transform: translateX(20px); background-color: 
 .toast-close { background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; line-height: 1; }
 .toast-close:hover { color: white; }
 
-/* =========================================
-   6. ADMIN DASHBOARD LAYOUT
-   ========================================= */
 .admin-dashboard-layout {
   display: flex;
   height: 100%;
@@ -432,6 +421,7 @@ input:checked + .slider:before { transform: translateX(20px); background-color: 
 .score-normal { background-color: rgba(255, 255, 255, 0.05); color: #a1a1aa; }
 .queue-item-body { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: #a1a1aa; margin-bottom: 16px; }
 .queue-item-body strong { color: #d4d4d8; }
+/* Кнопки (основні стьожки) */
 .btn-add-truck { width: 100%; padding: 10px; background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 6px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
 .queue-empty { text-align: center; padding: 40px; color: #71717a; }
 
@@ -523,10 +513,6 @@ input:checked + .slider:before { transform: translateX(20px); background-color: 
   flex-shrink: 0;
 }
 .btn-dispatch.disabled { background-color: #27272a; color: #71717a; cursor: not-allowed; }
-
-/* =========================================
-   7. MAP — КРИТИЧНИЙ БЛОК
-   ========================================= */
 
 .map-container-wrapper {
   flex: 1;
@@ -633,9 +619,6 @@ body.light-theme .leaflet-tile-pane {
   100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
 }
 
-/* =========================================
-   7. MAP PAGE LAYOUT
-   ========================================= */
 .map-page-layout {
   display: flex;
   flex-direction: column;
@@ -645,7 +628,6 @@ body.light-theme .leaflet-tile-pane {
   overflow: hidden;
 }
 
-/* height: auto + min-height allows the row to grow when content wraps */
 .map-kpi-header {
   height: auto;
   min-height: 60px;
@@ -718,9 +700,6 @@ body.light-theme .leaflet-tile-pane {
 .status-transit { color: var(--accent); }
 .feed-item-cargo { font-size: 0.75rem; color: var(--text-secondary); }
 
-/* =========================================
-   8. AUTH PAGE
-   ========================================= */
 .auth-page-wrapper { height: 100vh; display: flex; align-items: center; justify-content: center; background-color: var(--bg-dark); }
 .auth-card-container { width: 100%; max-width: 400px; padding: 40px; background-color: var(--bg-panel); border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8); }
 
@@ -737,9 +716,6 @@ body.light-theme .leaflet-tile-pane {
 .auth-toggle-btn { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: color 0.2s; }
 .auth-toggle-btn:hover { color: var(--text-primary); }
 
-/* =========================================
-   9. SETTINGS UTILITY CLASSES
-   ========================================= */
 .settings-tabs-scrollable { overflow-x: auto; white-space: nowrap; }
 .settings-card-wide { max-width: 700px; }
 .avatar-actions { display: flex; flex-direction: column; align-items: flex-start; }
@@ -767,22 +743,16 @@ body.light-theme .leaflet-tile-pane {
 .settings-text-muted { font-size: 0.85rem; color: var(--text-secondary); }
 .settings-submit-wrapper { display: flex; justify-content: flex-start; }
 
-/* =========================================
-   10. INVENTORY TABLE
-   ========================================= */
-/* Widen the Edit button so text doesn't clip in any language */
 .inventory-edit-btn {
   white-space: nowrap;
   min-width: 90px;
 }
 
-/* =========================================
-   11. RESPONSIVE
-   ========================================= */
 .mobile-header { display: none; justify-content: space-between; align-items: center; padding: 16px 20px; background-color: var(--bg-panel); border-bottom: 1px solid var(--border); z-index: 40; }
 .mobile-menu-btn { background: none; border: none; color: var(--text-primary); cursor: pointer; }
 .sidebar-overlay { display: none; position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.5); z-index: 45; backdrop-filter: blur(2px); }
 
+/* Адаптив під мобілки (респонсив) */
 @media (max-width: 1024px) {
   .admin-dashboard-layout { flex-direction: column; height: auto; overflow-y: auto; }
   .queue-panel, .manifest-panel { width: 100%; border-right: none; }
@@ -814,11 +784,6 @@ body.light-theme .leaflet-tile-pane {
   .kpi-block { padding: 16px; border-bottom: 1px solid var(--border); border-right: none; }
 }
 
-/* =========================================
-   12. LIGHT THEME OVERRIDES
-   ========================================= */
-
-/* --- Toggle / Switch --- */
 body.light-theme .slider {
   background-color: #cbd5e1;
   border-color: #94a3b8;
@@ -835,7 +800,6 @@ body.light-theme input:checked + .slider:before {
   background-color: #ffffff;
 }
 
-/* --- Sidebar & Nav --- */
 body.light-theme .nav-link { color: var(--text-secondary); }
 body.light-theme .nav-link.active {
   color: var(--text-primary);
@@ -848,7 +812,6 @@ body.light-theme .nav-link:hover:not(.active) {
   background-color: rgba(0,0,0,0.04);
 }
 
-/* --- Buttons --- */
 body.light-theme .logout-btn {
   color: var(--text-secondary);
   border-color: var(--border);
@@ -901,7 +864,6 @@ body.light-theme .btn-outline-secondary:hover {
 body.light-theme .auth-toggle-btn { color: var(--accent); }
 body.light-theme .auth-toggle-btn:hover { color: var(--text-primary); }
 
-/* --- Notification Bell --- */
 body.light-theme .notif-bell-btn {
   background-color: var(--bg-panel);
   border-color: var(--border);
@@ -914,7 +876,6 @@ body.light-theme .notif-bell-btn.bell-active {
   color: var(--accent);
 }
 
-/* --- Settings Tabs --- */
 body.light-theme .settings-tab-btn { color: var(--text-secondary); }
 body.light-theme .settings-tab-btn:hover:not(.active) { color: var(--text-primary); }
 body.light-theme .settings-tab-btn.active {
@@ -922,14 +883,12 @@ body.light-theme .settings-tab-btn.active {
   border-bottom-color: var(--accent);
 }
 
-/* --- Dashboard Queue Panel --- */
 body.light-theme .queue-item { background-color: var(--bg-panel); }
 body.light-theme .queue-item-body { color: var(--text-secondary); }
 body.light-theme .queue-item-body strong { color: var(--text-primary); }
 body.light-theme .score-normal { color: var(--text-secondary); background-color: rgba(0,0,0,0.06); }
 body.light-theme .queue-empty { color: var(--text-secondary); }
 
-/* --- Manifest / Route Stops --- */
 body.light-theme .manifest-empty-state { color: var(--text-secondary); }
 body.light-theme .manifest-empty-state h3 { color: var(--text-primary); }
 body.light-theme .manifest-empty-state svg { opacity: 0.35; }
@@ -940,25 +899,20 @@ body.light-theme .stop-index { background-color: var(--bg-card); color: var(--te
 body.light-theme .stop-location { color: var(--text-primary); }
 body.light-theme .stop-details { color: var(--text-secondary); }
 
-/* --- Map / Telemetry / Feed --- */
 body.light-theme .telemetry-card { background-color: var(--bg-dark); }
 body.light-theme .stock-bar-bg { background-color: var(--bg-card); }
 body.light-theme .hub-description { color: var(--text-secondary); }
 body.light-theme .feed-item { background-color: var(--bg-dark); }
 body.light-theme .feed-item-cargo { color: var(--text-secondary); }
 
-/* --- Notifications --- */
 body.light-theme .notif-item.notif-unread { background-color: rgba(59, 130, 246, 0.05); }
 body.light-theme .notif-item-icon { background-color: rgba(0,0,0,0.06); color: var(--text-secondary); }
 
-/* --- Switch Wrapper --- */
 body.light-theme .switch-wrapper { background-color: var(--bg-dark); }
 
-/* --- Auth hints --- */
 body.light-theme .auth-hints {
   background-color: var(--bg-dark);
   color: var(--text-secondary);
 }
 
-/* --- Scrollbar --- */
 body.light-theme ::-webkit-scrollbar-thumb { background: #c4c4c8; }

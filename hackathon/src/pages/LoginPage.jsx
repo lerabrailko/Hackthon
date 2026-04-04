@@ -1,57 +1,43 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ROUTES } from '../constants/routes';
+import LoginForm from '../components/features/auth/LoginForm';
 
 const LoginPage = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const { login } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    
-    try {
-      await login(username, password);
-      navigate(ROUTES.DASHBOARD);
-    } catch (err) {
-      console.error(err);
-      setError(err.message); 
-    }
-  };
+  if (user) {
+    return <Navigate to={ROUTES.DASHBOARD} replace />;
+  }
 
   return (
-    <div className="auth-wrapper">
-      <form className="card auth-card" onSubmit={handleSubmit}>
-        <h1 className="auth-title">Right Direction</h1>
-        
-        {error && <div className="error-msg">{error}</div>}
-
-        <div className="form-group">
-          <label>LOGIN ID</label>
-          <input 
-            className="input" 
-            value={username} 
-            onChange={e => setUsername(e.target.value)} 
-            placeholder="e.g. admin"
-          />
+    <div style={{
+      height: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: 'var(--bg-dark)'
+    }}>
+      <div className="animate-in" style={{
+        width: '100%',
+        maxWidth: '400px',
+        padding: '40px',
+        backgroundColor: 'var(--bg-panel)',
+        borderRadius: '16px',
+        border: '1px solid var(--border)',
+        boxShadow: '0 20px 40px rgba(0,0,0,0.8)'
+      }}>
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
+            <div style={{ width: '40px', height: '40px', backgroundColor: 'var(--accent)', borderRadius: '8px' }}></div>
+          </div>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '8px' }}>Right Direction</h1>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Authentication System</p>
         </div>
 
-        <div className="form-group">
-          <label>PASSWORD</label>
-          <input 
-            type="password"
-            className="input" 
-            value={password} 
-            onChange={e => setPassword(e.target.value)} 
-          />
-        </div>
-
-        <button type="submit" className="btn-primary w-100">LOGIN</button>
-      </form>
+        <LoginForm />
+      </div>
     </div>
   );
 };

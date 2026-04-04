@@ -4,7 +4,11 @@ import { useAuth } from '../context/AuthContext';
 import { ROUTES } from '../constants/routes';
 
 const ProtectedRoute = ({ children }) => {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <div style={{ height: '100vh', backgroundColor: 'var(--bg-dark)' }}></div>;
+  }
 
   if (!user) {
     return <Navigate to={ROUTES.LOGIN} replace />;

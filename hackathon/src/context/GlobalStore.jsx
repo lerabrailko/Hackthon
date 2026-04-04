@@ -1,30 +1,58 @@
 import React, { createContext, useState, useContext } from 'react';
 import { MOCK_REQUESTS } from '../data/mockData';
 
+const INITIAL_INVENTORY = [
+  { sku: 'MED-001', name: 'First Aid Kits (Standard)', category: 'Medicine', warehouse: 'Lviv West Hub', qty: 12500, maxQty: 15000, status: 'IN_STOCK', daysLeft: 45 },
+  { sku: 'MED-042', name: 'Broad-Spectrum Antibiotics', category: 'Medicine', warehouse: 'Kyiv Central', qty: 450, maxQty: 5000, status: 'LOW_STOCK', daysLeft: 3 },
+  { sku: 'FOD-991', name: 'MRE Rations (Pallets)', category: 'Food', warehouse: 'Odesa Port', qty: 45000, maxQty: 50000, status: 'IN_STOCK', daysLeft: 120 },
+  { sku: 'WAT-100', name: 'Clean Drinking Water (1L)', category: 'Water', warehouse: 'Dnipro Hub', qty: 0, maxQty: 20000, status: 'OUT_OF_STOCK', daysLeft: 0 },
+  { sku: 'EQP-005', name: 'Power Generators 5kW', category: 'Equipment', warehouse: 'Lviv West Hub', qty: 12, maxQty: 50, status: 'LOW_STOCK', daysLeft: 5 },
+  { sku: 'FUL-022', name: 'Diesel Fuel (Liters)', category: 'Fuel', warehouse: 'Kyiv Central', qty: 8500, maxQty: 10000, status: 'IN_STOCK', daysLeft: 14 },
+  { sku: 'MED-112', name: 'Surgical Instruments Kit', category: 'Medicine', warehouse: 'Kharkiv Hub', qty: 120, maxQty: 200, status: 'IN_STOCK', daysLeft: 30 },
+  { sku: 'FOD-305', name: 'Canned Goods (Mixed)', category: 'Food', warehouse: 'Dnipro Hub', qty: 850, maxQty: 5000, status: 'LOW_STOCK', daysLeft: 4 },
+];
+
 const GlobalContext = createContext();
 
 export const GlobalProvider = ({ children }) => {
   const [requests, setRequests] = useState(MOCK_REQUESTS);
+  const [inventory, setInventory] = useState(INITIAL_INVENTORY);
 
-  const addRequest = (newRequest) => {
-    setRequests(prev => [newRequest, ...prev]);
-  };
+  const addRequest = (newRequest) => setRequests([newRequest, ...requests]);
 
-  const updateStatus = (id, status) => {
-    setRequests(prev => prev.map(req => 
-      req.id === id ? { ...req, status } : req
+  const updateRequestStatus = (id, newStatus) => {
+    setRequests(requests.map(req =>
+      req.id === id ? { ...req, status: newStatus, currentStock: newStatus === 'DELIVERED' ? 100 : req.currentStock } : req
     ));
   };
 
+  // Оновлення кількості товару на складі
+  const updateInventoryQty = (sku, newQty) => {
+    setInventory(prev => prev.map(item => {
+      if (item.sku === sku) {
+        const qty = Number(newQty);
+        let status = 'IN_STOCK';
+        if (qty === 0) status = 'OUT_OF_STOCK';
+        else if (qty < item.maxQty * 0.2) status = 'LOW_STOCK';
+        return { ...item, qty, status };
+      }
+      return item;
+    }));
+  };
+
+  // Додавання нового товару (Shipment)
+  const addInventoryItem = (newItem) => {
+    setInventory([newItem, ...inventory]);
+  };
+
   return (
-    <GlobalContext.Provider value={{ requests, addRequest, updateStatus }}>
+    <GlobalContext.Provider value={{
+      requests, addRequest, updateRequestStatus,
+      inventory, updateInventoryQty, addInventoryItem
+    }}>
       {children}
     </GlobalContext.Provider>
   );
 };
 
-export const useGlobalContext = () => {
-  const context = useContext(GlobalContext);
-  if (!context) throw new Error('useGlobalContext must be used within GlobalProvider');
-  return context;
-};
+export const useGlobalContext = () => useContext(GlobalContext);

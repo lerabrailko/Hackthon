@@ -5,7 +5,7 @@ import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// === КАСТОМНИЙ МАРКЕР ФУРИ ДЛЯ МОДАЛКИ ===
+// Іконка для машини
 const truckIcon = new L.DivIcon({
   className: 'custom-truck-marker',
   html: `<div style="background: #2563eb; border: 2px solid #fff; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg></div>`,
@@ -36,7 +36,7 @@ const ClientDashboard = () => {
   const [priority, setPriority] = useState('NORMAL');
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Стейт для модального вікна карти
+  // Для мапи в модалці
   const [mapModalOrder, setMapModalOrder] = useState(null);
 
   const filteredCatalog = inventory.filter(item =>
@@ -63,12 +63,12 @@ const ClientDashboard = () => {
     addRequest({
       id: `ORD-${Math.floor(Math.random() * 10000)}`,
       location: address,
-      coords: [49.0 + Math.random(), 31.0 + Math.random()], // Фейкові координати доставки
+      coords: [49.0 + Math.random(), 31.0 + Math.random()], // Імітація координатів для карти
       items: cartItem.name,
       priority: priority,
       quantity: Number(quantity),
       currentStock: 0,
-      status: 'PENDING', // Одразу ставимо PENDING
+      status: 'PENDING', // Статус замовлення
       timestamp: new Date().toISOString(),
     });
     showNotification(`Order for ${quantity}x ${cartItem.name} placed successfully`, 'success');
@@ -76,7 +76,7 @@ const ClientDashboard = () => {
     setActiveTab('MY_ORDERS');
   };
 
-  // Показуємо тільки активні та ті, що в процесі
+  //  Фільтруємо замовлення користувача (ті, що не доставлені)
   const myOrders = requests.filter(r => r.status !== 'DELIVERED');
 
   return (

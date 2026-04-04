@@ -1,53 +1,42 @@
 import React from 'react';
-import StatusBadge from '../../StatusBadge';
-import { calculatePriorityScore } from '../../../utils/priority';
+import { useGlobalContext } from '../../../context/GlobalStore';
+import { PRIORITY_LEVELS } from '../../../constants/statuses';
 
-const RequestCard = ({ request, onDeliver, onReduceStock }) => {
-  const score = calculatePriorityScore(request);
-  const isCritical = request.currentStock < 20;
+const StatsGrid = () => {
+  const { requests } = useGlobalContext();
+
+  const stats = {
+    total: requests.length,
+    critical: requests.filter(r => r.priority === PRIORITY_LEVELS.CRITICAL).length,
+    avgStock: requests.length 
+      ? Math.round(requests.reduce((acc, r) => acc + r.currentStock, 0) / requests.length) 
+      : 0
+  };
+
+  const cardStyle = {
+    backgroundColor: 'var(--bg-card)',
+    padding: '20px',
+    borderRadius: '16px',
+    border: '1px solid var(--border)',
+    flex: 1
+  };
 
   return (
-    <div className="glass-card" style={{ padding: '20px', marginBottom: '16px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h3 style={{ margin: '0 0 6px 0', fontSize: '1.25rem' }}>{request.location}</h3>
-          <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-            Cargo: <span style={{ color: 'white' }}>{request.items}</span> •
-            Stock: <span style={{ color: isCritical ? 'var(--danger)' : 'var(--success)', fontWeight: 'bold' }}>
-              {request.currentStock}%
-            </span>
-          </div>
-        </div>
-
-        <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', letterSpacing: '1px' }}>PRIORITY</div>
-          <div style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--accent)' }}>{score}</div>
-        </div>
+    <div style={{ display: 'flex', gap: '20px', marginBottom: '30px' }} className="animate-in">
+      <div style={cardStyle}>
+        <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', textTransform: 'uppercase' }}>Total Active</div>
+        <div style={{ fontSize: '1.8rem', fontWeight: '800', marginTop: '5px' }}>{stats.total}</div>
       </div>
-
-      <div style={{
-        marginTop: '20px',
-        paddingTop: '15px',
-        borderTop: '1px solid var(--border)',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
-        <StatusBadge priority={request.priority} />
-
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button className="btn-secondary" onClick={onReduceStock} style={{
-            background: 'transparent', color: 'var(--text-muted)', border: '1px solid var(--border)', padding: '8px 15px', borderRadius: '8px', cursor: 'pointer'
-          }}>
-            Simulate Crisis
-          </button>
-          <button className="btn-primary" onClick={onDeliver} style={{ padding: '8px 15px' }}>
-            Dispatch
-          </button>
-        </div>
+      <div style={{ ...cardStyle, borderLeft: '4px solid var(--danger)' }}>
+        <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', textTransform: 'uppercase' }}>Critical Alert</div>
+        <div style={{ fontSize: '1.8rem', fontWeight: '800', marginTop: '5px', color: 'var(--danger)' }}>{stats.critical}</div>
+      </div>
+      <div style={{ ...cardStyle, borderLeft: '4px solid var(--accent)' }}>
+        <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', textTransform: 'uppercase' }}>Avg Stock</div>
+        <div style={{ fontSize: '1.8rem', fontWeight: '800', marginTop: '5px' }}>{stats.avgStock}%</div>
       </div>
     </div>
   );
 };
 
-export default RequestCard;
+export default StatsGrid;

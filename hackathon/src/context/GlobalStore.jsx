@@ -18,10 +18,10 @@ export const GlobalProvider = ({ children }) => {
   const [requests, setRequests] = useState(MOCK_REQUESTS);
   const [inventory, setInventory] = useState(INITIAL_INVENTORY);
 
-  const addRequest = (newRequest) => setRequests([newRequest, ...requests]);
+  const addRequest = (newRequest) => setRequests(prev => [newRequest, ...prev]);
 
   const updateRequestStatus = (id, newStatus) => {
-    setRequests(requests.map(req =>
+    setRequests(prevRequests => prevRequests.map(req =>
       req.id === id ? { ...req, status: newStatus, currentStock: newStatus === 'DELIVERED' ? 100 : req.currentStock } : req
     ));
   };
@@ -42,7 +42,7 @@ export const GlobalProvider = ({ children }) => {
 
   // Додавання нового товару (Shipment)
   const addInventoryItem = (newItem) => {
-    setInventory([newItem, ...inventory]);
+    setInventory(prev => [newItem, ...prev]);
   };
 
   return (
@@ -55,4 +55,5 @@ export const GlobalProvider = ({ children }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useGlobalContext = () => useContext(GlobalContext);

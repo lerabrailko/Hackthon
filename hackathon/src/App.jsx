@@ -15,6 +15,8 @@ import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import MapPage from './pages/MapPage';
 import SettingsPage from './pages/SettingsPage';
+import AnalyticsPage from './pages/AnalyticsPage';
+import InventoryPage from './pages/InventoryPage';
 
 function App() {
   return (
@@ -46,6 +48,28 @@ function App() {
                     <ProtectedRoute>
                       <MainLayout>
                         <MapPage />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path={ROUTES.ANALYTICS}
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <AnalyticsPage />
+                      </MainLayout>
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path={ROUTES.INVENTORY}
+                  element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <InventoryPage />
                       </MainLayout>
                     </ProtectedRoute>
                   }

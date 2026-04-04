@@ -170,7 +170,7 @@ const ClientDashboard = () => {
                           <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: '#71717a' }}>ID: {order.id}</p>
                         </div>
                         <span style={{ padding: '6px 12px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '800', backgroundColor: isTransit ? 'rgba(59, 130, 246, 0.1)' : 'rgba(249, 115, 22, 0.1)', color: isTransit ? '#3b82f6' : '#f97316', border: `1px solid ${isTransit ? 'rgba(59, 130, 246, 0.2)' : 'rgba(249, 115, 22, 0.2)'}` }}>
-                          {order.status}
+                          {order.status.replace(/_/g, ' ')}
                         </span>
                       </div>
 

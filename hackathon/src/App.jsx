@@ -14,87 +14,57 @@ import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import MapPage from './pages/MapPage';
-import SettingsPage from './pages/SettingsPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import InventoryPage from './pages/InventoryPage';
+import SettingsPage from './pages/SettingsPage';
 
 function App() {
   return (
-    <AuthProvider>
-      <GlobalProvider>
-        <NotificationProvider>
-          <LanguageProvider>
-            
+    <LanguageProvider>
+      <AuthProvider>
+        <GlobalProvider>
+          <NotificationProvider>
             <BrowserRouter>
               <Routes>
-                {}
                 <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+                
+                <Route path={ROUTES.DASHBOARD} element={
+                  <ProtectedRoute>
+                    <MainLayout><DashboardPage /></MainLayout>
+                  </ProtectedRoute>
+                } />
+                
+                <Route path={ROUTES.MAP} element={
+                  <ProtectedRoute>
+                    <MainLayout><MapPage /></MainLayout>
+                  </ProtectedRoute>
+                } />
 
-                {}
-                <Route
-                  path={ROUTES.DASHBOARD}
-                  element={
-                    <ProtectedRoute>
-                      <MainLayout>
-                        <DashboardPage />
-                      </MainLayout>
-                    </ProtectedRoute>
-                  }
-                />
+                <Route path={ROUTES.ANALYTICS} element={
+                  <ProtectedRoute>
+                    <MainLayout><AnalyticsPage /></MainLayout>
+                  </ProtectedRoute>
+                } />
 
-                <Route
-                  path={ROUTES.MAP}
-                  element={
-                    <ProtectedRoute>
-                      <MainLayout>
-                        <MapPage />
-                      </MainLayout>
-                    </ProtectedRoute>
-                  }
-                />
-
-                <Route
-                  path={ROUTES.ANALYTICS}
-                  element={
-                    <ProtectedRoute>
-                      <MainLayout>
-                        <AnalyticsPage />
-                      </MainLayout>
-                    </ProtectedRoute>
-                  }
-                />
-
-                <Route
-                  path={ROUTES.INVENTORY}
-                  element={
-                    <ProtectedRoute>
-                      <MainLayout>
-                        <InventoryPage />
-                      </MainLayout>
-                    </ProtectedRoute>
-                  }
-                />
-
-                <Route
-                  path={ROUTES.SETTINGS}
-                  element={
-                    <ProtectedRoute>
-                      <MainLayout>
-                        <SettingsPage />
-                      </MainLayout>
-                    </ProtectedRoute>
-                  }
-                />
-
-                {}
+                <Route path={ROUTES.INVENTORY} element={
+                  <ProtectedRoute>
+                    <MainLayout><InventoryPage /></MainLayout>
+                  </ProtectedRoute>
+                } />
+                
+                <Route path={ROUTES.SETTINGS} element={
+                  <ProtectedRoute>
+                    <MainLayout><SettingsPage /></MainLayout>
+                  </ProtectedRoute>
+                } />
+                
                 <Route path="*" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
               </Routes>
             </BrowserRouter>
-
-          </LanguageProvider>
-        </NotificationProvider>
-      </GlobalProvider>
-    </AuthProvider>
+          </NotificationProvider>
+        </GlobalProvider>
+      </AuthProvider>
+    </LanguageProvider>
   );
 }
 

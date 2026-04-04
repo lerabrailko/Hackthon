@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ROUTES } from '../constants/routes';
 import { useAuth } from '../context/AuthContext';
-
+import { useLang } from '../context/LanguageContext';
+import { useNotify } from '../context/NotificationContext';
 
 const Icons = {
   tracking: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>,
@@ -13,86 +14,149 @@ const Icons = {
   logout: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
 };
 
+const TYPE_ICONS = { success: '✓', danger: '✕', warning: '⚠', info: 'i' };
+
+const NotificationCenter = () => {
+  const { history, unreadCount, markAllAsRead, clearHistory } = useNotify();
+  const { t } = useLang();
+  const [isOpen, setIsOpen] = useState(false);
+  const wrapperRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) setIsOpen(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleToggle = () => {
+    const nextState = !isOpen;
+    setIsOpen(nextState);
+    if (nextState && unreadCount > 0) markAllAsRead();
+  };
+
+  return (
+    <div ref={wrapperRef} className="notif-center-wrapper">
+      <button onClick={handleToggle} className={`notif-bell-btn ${unreadCount > 0 ? 'bell-active' : ''}`}>
+        <svg className={`bell-icon ${unreadCount > 0 ? 'bell-shake' : ''}`} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
+        </svg>
+        {unreadCount > 0 && <span className="notif-dot" />}
+      </button>
+
+      {isOpen && (
+        <div className="notif-dropdown animate-in">
+          <div className="notif-dropdown-header">
+            <span className="notif-dropdown-title">{t('notifications_title')}</span>
+            {history.length > 0 && (
+              <button onClick={clearHistory} className="notif-clear-btn">
+                {t('clear_all')}
+              </button>
+            )}
+          </div>
+          <div className="notif-list">
+            {history.length === 0 ? (
+              <div className="notif-empty">
+                <span>{t('no_notifications')}</span>
+              </div>
+            ) : (
+              history.map(notif => (
+                <div key={notif.id} className={`notif-item notif-item-${notif.type} ${notif.read ? 'notif-read' : 'notif-unread'}`}>
+                  <span className="notif-item-icon">{TYPE_ICONS[notif.type]}</span>
+                  <div className="notif-item-body">
+                    <p className="notif-item-message">{notif.message}</p>
+                    <span className="notif-item-time">{new Date(notif.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                  </div>
+                  {!notif.read && <span className="notif-unread-dot" />}
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const MainLayout = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { t } = useLang();
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-  
   const navItems = [
-    { name: 'Dispatch Queue', path: ROUTES.DASHBOARD, icon: Icons.tracking },
-    { name: 'Global Radar', path: ROUTES.MAP, icon: Icons.map },
-    { name: 'Inventory', path: '/inventory', icon: Icons.inventory },
-    { name: 'Analytics', path: '/analytics', icon: Icons.analytics },
-    { name: 'Settings', path: '/settings', icon: Icons.settings },
+    { name: t('menu_dispatch'), path: ROUTES.DASHBOARD, icon: Icons.tracking },
+    { name: t('menu_radar'), path: ROUTES.MAP, icon: Icons.map },
+    { name: t('menu_inventory'), path: '/inventory', icon: Icons.inventory },
+    { name: t('menu_analytics'), path: '/analytics', icon: Icons.analytics },
+    { name: t('menu_settings'), path: '/settings', icon: Icons.settings },
   ];
 
-  const handleLogout = () => {
-    logout();
-    navigate(ROUTES.LOGIN);
-  };
+  useEffect(() => { setIsMobileOpen(false); }, [location.pathname]);
+
+  const handleLogout = () => { logout(); navigate(ROUTES.LOGIN); };
 
   if (user?.role === 'DRIVER') {
-    return <div style={{ width: '100vw', height: '100vh', overflow: 'hidden', backgroundColor: '#09090b' }}>{children}</div>;
+    return <div className="driver-layout-wrapper">{children}</div>;
   }
 
   return (
-    <div style={{ display: 'flex', height: '100vh', backgroundColor: '#09090b', color: '#f4f4f5', fontFamily: 'system-ui, sans-serif' }}>
-      
-      <aside style={{ width: '220px', backgroundColor: '#18181b', borderRight: '1px solid #27272a', display: 'flex', flexDirection: 'column', zIndex: 50 }}>
-        
-        <div style={{ padding: '24px 20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '24px', height: '24px', backgroundColor: '#3b82f6', borderRadius: '6px' }}></div>
-          <div style={{ fontWeight: '800', fontSize: '1.2rem', letterSpacing: '-0.5px', color: '#ffffff' }}>Dispatch<span style={{color:'#3b82f6'}}>X</span></div>
+    <div className="app-layout">
+      <div className="mobile-header">
+        <div className="brand-logo">
+          <div className="brand-icon"></div>
+          <div className="brand-text">Dispatch<span>X</span></div>
+        </div>
+        <button className="mobile-menu-btn" onClick={() => setIsMobileOpen(!isMobileOpen)}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+      </div>
+
+      {isMobileOpen && <div className="sidebar-overlay" onClick={() => setIsMobileOpen(false)}></div>}
+
+      <aside className={`app-sidebar ${isMobileOpen ? 'open' : ''}`}>
+        <div className="sidebar-brand">
+          <div className="brand-icon"></div>
+          <div className="brand-text">Dispatch<span>X</span></div>
         </div>
 
-        <nav style={{ flex: 1, padding: '10px 0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <div style={{ padding: '0 20px', fontSize: '0.65rem', fontWeight: '700', color: '#71717a', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Main Menu</div>
-          
+        <nav className="sidebar-nav">
+          <div className="nav-section-title">{t('main_menu')}</div>
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
-              <Link 
-                key={item.path} to={item.path} 
-                style={{ 
-                  display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 20px', textDecoration: 'none', 
-                  color: isActive ? '#ffffff' : '#a1a1aa', fontSize: '0.85rem', fontWeight: isActive ? '600' : '500', 
-                  backgroundColor: isActive ? 'rgba(59, 130, 246, 0.05)' : 'transparent',
-                  borderLeft: isActive ? '3px solid #3b82f6' : '3px solid transparent',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                <span style={{ color: isActive ? '#3b82f6' : '#71717a' }}>{item.icon}</span>
+              <Link key={item.path} to={item.path} className={`nav-link ${isActive ? 'active' : ''}`}>
+                <span className="nav-icon">{item.icon}</span>
                 <span>{item.name}</span>
               </Link>
             );
           })}
         </nav>
 
-        <div style={{ padding: '20px', borderTop: '1px solid #27272a' }}>
+        <div className="sidebar-footer">
           {user && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#27272a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: '700', color: '#a1a1aa' }}>
-                {user.name.charAt(0)}
+            <div className="user-profile">
+              <div className="user-avatar">
+                {user.avatar ? <img src={user.avatar} alt="P" /> : user.name?.charAt(0)}
               </div>
-              <div style={{ overflow: 'hidden' }}>
-                <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#ffffff', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{user.name}</div>
-                <div style={{ fontSize: '0.7rem', color: '#71717a', fontWeight: '500' }}>{user.role}</div>
+              <div className="user-info">
+                <div className="user-name">{user.name}</div>
+                <div className="user-role">{user.role}</div>
               </div>
             </div>
           )}
-          <button 
-            onClick={handleLogout} 
-            style={{ width: '100%', background: 'transparent', border: '1px solid #3f3f46', color: '#a1a1aa', padding: '8px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: '0.2s' }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = '#fff'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = '#a1a1aa'; e.currentTarget.style.borderColor = '#3f3f46'; }}
-          >
-            {Icons.logout} Sign Out
+          <button onClick={handleLogout} className="logout-btn">
+            {Icons.logout} {t('sign_out')}
           </button>
         </div>
       </aside>
 
-      <main style={{ flex: 1, height: '100vh', overflow: 'hidden', position: 'relative' }}>
+      <main className="app-main-content">
+        <div className="top-bar-controls">
+          <NotificationCenter />
+        </div>
         {children}
       </main>
     </div>

@@ -1,43 +1,17 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React from 'react';
 
-const AuthContext = createContext(null);
+const AuthLayout = ({ children }) => (
+  <div style={{
+    height: '100vh',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#0f172a'
+  }}>
+    <div style={{ backgroundColor: '#1e293b', padding: '40px', borderRadius: '16px', width: '100%', maxWidth: '400px', boxShadow: '0 10px 25px rgba(0,0,0,0.5)' }}>
+      {children}
+    </div>
+  </div>
+);
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const savedUser = localStorage.getItem('logitech_user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    setLoading(false);
-  }, []);
-
-  const login = async (username, password) => {
-    if (username && password === '123') {
-      const mockUser = { name: username, role: 'USER' };
-      setUser(mockUser);
-      localStorage.setItem('logitech_user', JSON.stringify(mockUser));
-      return mockUser;
-    }
-    throw new Error('Invalid credentials');
-  };
-
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('logitech_user');
-  };
-
-  return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
-      {!loading && children}
-    </AuthContext.Provider>
-  );
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within AuthProvider');
-  return context;
-};
+export default AuthLayout;

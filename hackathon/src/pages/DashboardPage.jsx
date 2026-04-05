@@ -59,7 +59,10 @@ const AdminDashboard = () => {
 
   let pendingQueue = requests.filter(r => (r.status === 'PENDING' || r.status === 'DRAFT') && !selectedForFleet.find(s => s.id === r.id));
   if (filterCategory !== 'All') pendingQueue = pendingQueue.filter(r => r.items.includes(filterCategory));
-  
+
+  pendingQueue.sort((a, b) => calculatePriorityScore(b) - calculatePriorityScore(a));
+
+  const allCategories = ['All', 'Medicine', 'Food', 'Water', 'Equipment', 'Fuel'];
 
   const currentPayload = selectedForFleet.reduce((sum, req) => sum + req.quantity, 0);
   const fillPercentage = Math.min((currentPayload / TRUCK_CAPACITY) * 100, 100);

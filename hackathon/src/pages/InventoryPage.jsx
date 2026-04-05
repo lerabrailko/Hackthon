@@ -36,7 +36,7 @@ const InventoryPage = () => {
   const [formData, setFormData] = useState({ sku: '', name: '', category: 'Medicine', warehouse: 'Kyiv Central', qty: '', maxQty: '' });
 
   const canManageInventory = user?.role === 'ADMIN' || user?.role === 'DISPATCHER';
-  
+  const gridColumns = canManageInventory ? '2fr 1.2fr 1fr 1.6fr 110px' : '2fr 1.2fr 1fr 1.6fr';
 
   const filteredData = inventory.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase()) ||

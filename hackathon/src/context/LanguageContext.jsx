@@ -72,7 +72,7 @@ const translations = {
     of: 'of',
 
     dispatch_queue: 'Dispatch Queue',
-    add_queue: '+ ADD TO QUEUE',
+    add_queue: 'ADD TO QUEUE',
     cargo_manifest: 'Cargo Manifest',
     dest_stock: 'Destination Stock Level',
     req_units: 'Requested',
@@ -129,7 +129,7 @@ const translations = {
     inventory_subtitle: 'Manage and monitor real-time stock across all hubs.',
     inventory_subtitle_manage: 'Manage and monitor real-time stock across all hubs.',
     inventory_subtitle_view: 'View available supplies in our network.',
-    add_shipment: '+ Add Shipment',
+    add_shipment: ' Add Shipment',
     search_placeholder: 'Search by SKU or Name...',
     all_categories: 'All Categories',
     col_sku: 'SKU & NAME',

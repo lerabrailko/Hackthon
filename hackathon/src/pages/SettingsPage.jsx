@@ -2,18 +2,17 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LanguageContext'; 
 import { useNotify } from '../context/NotificationContext';
+import { validateEmail, validatePhone, validatePassword } from '../utils/validators';
 
 const SettingsPage = () => {
-  const { user, updateProfile } = useAuth();
-  const { 
-    lang, changeLanguage, 
-    theme, changeTheme, 
-    t 
-  } = useLang();
+  const { user, updateProfile, changePassword } = useAuth();
+  const { lang, changeLanguage, theme, changeTheme, t } = useLang();
   const { showNotification } = useNotify();
   
   const [activeTab, setActiveTab] = useState('profile');
   const [saveStatus, setSaveStatus] = useState('idle');
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
   const fileInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
@@ -63,10 +62,7 @@ const SettingsPage = () => {
       }
       const permission = await Notification.requestPermission();
       if (permission === 'granted') {
-        new Notification('LOGITECH.AI', { 
-          body: t('push_enabled_msg'), 
-          icon: '/favicon.svg' 
-        });
+        new Notification('DispatchX', { body: t('push_enabled_msg'), icon: '/favicon.svg' });
         showNotification(t('push_enabled_msg'), 'success', true);
       } else {
         setNotifs(prev => ({ ...prev, push: false }));
@@ -84,29 +80,58 @@ const SettingsPage = () => {
     }
   };
 
-  const handlePasswordUpdate = () => {
-    if (!currentPassword || !newPassword) {
-      showNotification('Please fill in both password fields.', 'danger', true);
+  const handlePasswordUpdate = async () => {
+    const errors = {};
+    if (!currentPassword) errors.currentPassword = 'Current password is required';
+    
+    if (!newPassword) {
+      errors.newPassword = 'New password is required';
+    } else if (!validatePassword(newPassword)) {
+      errors.newPassword = 'Password must be at least 6 characters long';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
       return;
     }
-    showNotification(t('two_factor_msg') ? 'Password update request sent.' : 'Password update request sent.', 'info', true);
-    setCurrentPassword('');
-    setNewPassword('');
+    
+    setFieldErrors({});
+    setIsUpdatingPassword(true);
+
+    try {
+      await changePassword(currentPassword, newPassword);
+      showNotification('Password updated successfully!', 'success');
+      setCurrentPassword('');
+      setNewPassword('');
+    } catch (error) {
+      setFieldErrors({ currentPassword: error.message });
+    } finally {
+      setIsUpdatingPassword(false);
+    }
   };
 
   const handleSave = (e) => {
     e.preventDefault();
+    const errors = {};
+
+    if (!formData.name.trim()) errors.name = 'Name is required';
+    if (formData.email && !validateEmail(formData.email)) errors.email = 'Enter a valid email address';
+    if (formData.phone && !validatePhone(formData.phone)) errors.phone = 'Enter a valid phone number';
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      return;
+    }
+    
+    setFieldErrors({});
     setSaveStatus('saving');
     
     setTimeout(() => {
       if (updateProfile) {
-        updateProfile({
-          ...formData,
-          notifications: notifs,
-          security: sec
-        });
+        updateProfile({ ...formData, notifications: notifs, security: sec });
       }
       setSaveStatus('success');
+      showNotification(t('saved_success') || 'Changes saved!', 'success');
       setTimeout(() => setSaveStatus('idle'), 2000);
     }, 800);
   };
@@ -128,9 +153,8 @@ const SettingsPage = () => {
       </div>
 
       <div className="settings-card settings-card-wide">
-        <form onSubmit={handleSave} className="settings-section">
+        <form onSubmit={handleSave} className="settings-section" noValidate>
           
-          {/* Вкладка профілю */}
           {activeTab === 'profile' && (
             <div className="animate-in">
               <div className="avatar-upload-container">
@@ -157,35 +181,49 @@ const SettingsPage = () => {
               <div className="settings-grid">
                 <div className="settings-form-group">
                   <label className="settings-label">{t('full_name')}</label>
-                  <input type="text" className="settings-input" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} required />
+                  <input 
+                    type="text" 
+                    className={`settings-input ${fieldErrors.name ? 'input-error' : ''}`} 
+                    value={formData.name} 
+                    onChange={(e) => { setFormData({...formData, name: e.target.value}); setFieldErrors({...fieldErrors, name: null}); }} 
+                  />
+                  {fieldErrors.name && <span className="field-error-text">{fieldErrors.name}</span>}
                 </div>
                 
                 <div className="settings-form-group">
                   <label className="settings-label">{t('system_role')}</label>
-                  <select 
-                    className="settings-select" 
-                    value={formData.role} 
-                    onChange={(e) => setFormData({...formData, role: e.target.value})}
-                  >
-                    <option value="LOGISTICIAN">Логіст (Адміністратор)</option>
-                    <option value="WAREHOUSE">Представник складу</option>
-                    <option value="DELIVERY_POINT">Точка доставки</option>
+                  <select className="settings-select" value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value})}>
+                    <option value="LOGISTICIAN">Logistician (Admin)</option>
+                    <option value="WAREHOUSE">Warehouse Rep</option>
+                    <option value="DELIVERY_POINT">Delivery Point</option>
                   </select>
                 </div>
 
                 <div className="settings-form-group">
                   <label className="settings-label">{t('email_label')}</label>
-                  <input type="email" className="settings-input" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
+                  <input 
+                    type="email" 
+                    className={`settings-input ${fieldErrors.email ? 'input-error' : ''}`} 
+                    value={formData.email} 
+                    onChange={(e) => { setFormData({...formData, email: e.target.value}); setFieldErrors({...fieldErrors, email: null}); }} 
+                  />
+                  {fieldErrors.email && <span className="field-error-text">{fieldErrors.email}</span>}
                 </div>
+                
                 <div className="settings-form-group">
                   <label className="settings-label">{t('phone_label')}</label>
-                  <input type="tel" className="settings-input" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} />
+                  <input 
+                    type="tel" 
+                    className={`settings-input ${fieldErrors.phone ? 'input-error' : ''}`} 
+                    value={formData.phone} 
+                    onChange={(e) => { setFormData({...formData, phone: e.target.value}); setFieldErrors({...fieldErrors, phone: null}); }} 
+                  />
+                  {fieldErrors.phone && <span className="field-error-text">{fieldErrors.phone}</span>}
                 </div>
               </div>
             </div>
           )}
 
-          {/* Вкладка зовнішнього вигляду */}
           {activeTab === 'appearance' && (
             <div className="animate-in settings-section-spaced">
               <div className="settings-form-group">
@@ -205,7 +243,6 @@ const SettingsPage = () => {
             </div>
           )}
 
-          {/* Вкладка сповіщень */}
           {activeTab === 'notifications' && (
             <div className="animate-in settings-section-spaced">
               <h3 className="settings-section-title">{t('notif_title')}</h3>
@@ -237,13 +274,11 @@ const SettingsPage = () => {
             </div>
           )}
 
-          {/* Вкладка безпеки */}
           {activeTab === 'security' && (
             <div className="animate-in settings-section-spaced">
               <h3 className="settings-section-title">{t('sec_title')}</h3>
               <p className="settings-text-muted mt-minus-8">{t('sec_desc')}</p>
 
-              {/* Перемикач 2FA */}
               <div className="switch-wrapper">
                 <span className="font-bold">{t('sec_2fa')}</span>
                 <label className="switch">
@@ -261,30 +296,41 @@ const SettingsPage = () => {
 
               <hr className="settings-divider" />
 
-              {/* Зміна паролю */}
               <div className="settings-form-group">
                 <label className="settings-label">{t('sec_password')}</label>
-                <div className="password-row mb-10">
+                
+                <div className="settings-form-group mb-10">
                   <input
                     type="password"
-                    className="settings-input"
+                    className={`settings-input ${fieldErrors.currentPassword ? 'input-error' : ''}`}
                     placeholder={t('sec_current_password')}
                     value={currentPassword}
-                    onChange={e => setCurrentPassword(e.target.value)}
+                    onChange={e => { setCurrentPassword(e.target.value); setFieldErrors({...fieldErrors, currentPassword: null}); }}
                   />
+                  {fieldErrors.currentPassword && <span className="field-error-text">{fieldErrors.currentPassword}</span>}
                 </div>
-                <div className="password-row">
-                  <input
-                    type="password"
-                    className="settings-input"
-                    placeholder={t('sec_new_password')}
-                    value={newPassword}
-                    onChange={e => setNewPassword(e.target.value)}
-                  />
-                  <button type="button" onClick={handlePasswordUpdate} className="btn-outline-secondary">
-                    {t('sec_update')}
+                
+                <div className="password-row-action">
+                  <div className="settings-form-group flex-1">
+                    <input
+                      type="password"
+                      className={`settings-input ${fieldErrors.newPassword ? 'input-error' : ''}`}
+                      placeholder={t('sec_new_password')}
+                      value={newPassword}
+                      onChange={e => { setNewPassword(e.target.value); setFieldErrors({...fieldErrors, newPassword: null}); }}
+                    />
+                    {fieldErrors.newPassword && <span className="field-error-text">{fieldErrors.newPassword}</span>}
+                  </div>
+                  <button 
+                    type="button" 
+                    onClick={handlePasswordUpdate} 
+                    disabled={isUpdatingPassword}
+                    className={`btn-outline-secondary ${isUpdatingPassword ? 'btn-saving' : ''}`}
+                  >
+                    {isUpdatingPassword ? t('processing') : t('sec_update')}
                   </button>
                 </div>
+
               </div>
             </div>
           )}

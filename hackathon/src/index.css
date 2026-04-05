@@ -916,3 +916,32 @@ body.light-theme .auth-hints {
 }
 
 body.light-theme ::-webkit-scrollbar-thumb { background: #c4c4c8; }
+
+
+.add-request-form {
+  background-color: var(--bg-panel);
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+.form-row-flex {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+.flex-1 { flex: 1; }
+.width-120 { width: 120px; }
+.mb-large { margin-bottom: 30px; }
+.field-error-text {
+  color: var(--danger);
+  font-size: 0.75rem;
+  margin-top: 4px;
+  display: block;
+}
+
+.password-row-action {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+

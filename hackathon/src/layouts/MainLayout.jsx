@@ -16,6 +16,14 @@ const Icons = {
 
 const TYPE_ICONS = { success: '✓', danger: '✕', warning: '⚠', info: 'i' };
 
+const BrandIconSvg = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--accent, #3b82f6)' }}>
+    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+  </svg>
+);
+
 const NotificationCenter = () => {
   const { history, unreadCount, markAllAsRead, clearHistory } = useNotify();
   const { t } = useLang();
@@ -104,25 +112,35 @@ const MainLayout = ({ children }) => {
 
   return (
     <div className="app-layout">
-      <div className="mobile-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <button className="mobile-menu-btn" onClick={() => setIsMobileOpen(!isMobileOpen)} style={{ width: "40px", display: "flex", justifyContent: "flex-start" }}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      {/* Мобільна шапка */}
+      <div className="mobile-header">
+        <button className="mobile-menu-btn" onClick={() => setIsMobileOpen(!isMobileOpen)}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
         </button>
-        <div className="brand-logo" style={{ padding: '0', flex: 1, justifyContent: 'center' }}>
-          {/* Додано іконку */}
-          <img src="/favicon.svg" alt="Logo" className="brand-icon" />
+        <div className="brand-logo">
+          <div className="brand-icon">
+            <BrandIconSvg />
+          </div>
           <div className="brand-text">Dispatch<span>X</span></div>
         </div>
-        <div className="mobile-notifications" style={{ width: "40px", display: "flex", justifyContent: "flex-end" }}>
+        <div className="mobile-notifications">
           <NotificationCenter />
         </div>
       </div>
+
+      {/* Оверлей сайдбару */}
       {isMobileOpen && <div className="sidebar-overlay" onClick={() => setIsMobileOpen(false)}></div>}
 
+      {/* Сайдбар */}
       <aside className={`app-sidebar ${isMobileOpen ? 'open' : ''}`}>
         <div className="sidebar-brand">
-          {/* Додано іконку */}
-          <img src="/favicon.svg" alt="Logo" className="brand-icon" />
+          <div className="brand-icon">
+            <BrandIconSvg />
+          </div>
           <div className="brand-text">Dispatch<span>X</span></div>
         </div>
 
@@ -157,6 +175,7 @@ const MainLayout = ({ children }) => {
         </div>
       </aside>
 
+      {/* Основний контент */}
       <main className="app-main-content">
         <div className="top-bar-controls">
           <NotificationCenter />

@@ -63,8 +63,14 @@ const LoginPage = () => {
     <div className="auth-page-wrapper">
       <div className="auth-card-container animate-in">
 
-        <div className="auth-header">
-          <h1 className="auth-title">
+       
+        <div className="auth-header" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '32px' }}>
+          <img 
+            src="/favicon.svg" 
+            alt="DispatchX Logo" 
+            style={{ width: '56px', height: '56px', marginBottom: '12px' }} 
+          />
+          <h1 className="auth-title" style={{ marginBottom: '8px' }}>
             {isRegisterMode ? (t('register_btn') || 'Register') : 'DispatchX'}
           </h1>
           <p className="auth-subtitle">Authentication System</p>

@@ -8,24 +8,11 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
-      devOptions: { enabled: true },
+      devOptions: { enabled: false },
 
       includeAssets: ['favicon.svg', 'icons.svg', 'icon-192.png', 'icon-512.png'],
 
-      manifest: {
-        name: 'DispatchX Logistics',
-        short_name: 'DispatchX',
-        description: 'Offline-first Logistics & Supply Chain Manager',
-        theme_color: '#09090b',
-        background_color: '#09090b',
-        display: 'standalone',
-        start_url: '/',
-        icons: [
-          { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
-          { src: 'favicon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' }
-        ]
-      },
+      manifest: false,
 
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg,jpeg,webp,woff,woff2}'],

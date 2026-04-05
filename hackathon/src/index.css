@@ -2616,40 +2616,21 @@ body.light-theme ::-webkit-scrollbar-thumb {
     flex-shrink: 0;
   }
 
-  /* Inventory: Картковий вигляд таблиці */
-  .inventory-page>div:nth-child(3)>div:first-child {
-    display: none !important;
+  /* --- СТОРАНКА СКЛАДУ: ТАБЛИЦЯ (СКРОЛ ВБІК) --- */
+  .inventory-table-wrapper {
+    width: 100% !important;
+    overflow-x: auto !important;
+    /* Вмикаємо горизонтальний скрол */
+    -webkit-overflow-scrolling: touch !important;
+    /* Плавність на iPhone */
+    max-width: 100vw;
+    padding-bottom: 4px;
+    /* Легкий відступ для скролбару */
   }
 
-  .inventory-page>div:nth-child(3)>div:not(:first-child) {
-    display: block !important;
-    position: relative;
-    padding: 16px !important;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .inventory-page>div:nth-child(3)>div:not(:first-child)>div {
-    margin-bottom: 8px;
-  }
-
-  .inventory-page>div:nth-child(3)>div:not(:first-child)>div:nth-child(1) {
-    padding-right: 80px;
-  }
-
-  .inventory-page>div:nth-child(3)>div:not(:first-child)>div:nth-child(4) {
-    margin-bottom: 0;
-  }
-
-  .inventory-page>div:nth-child(3)>div:not(:first-child)>div:nth-child(5) {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    margin-bottom: 0;
-  }
-
-  .inventory-page>div:nth-child(3)>div:not(:first-child)>div:nth-child(5) button {
-    width: auto;
-    padding: 6px 12px;
+  .inventory-table-row {
+    min-width: 750px !important;
+    /* Фіксуємо ширину, щоб колонки не злипалися */
   }
 
   /* --- Аналітика --- */
@@ -2667,22 +2648,100 @@ body.light-theme ::-webkit-scrollbar-thumb {
   }
 
   /* --- Налаштування (Settings) --- */
+
+  /* Додаємо відступ між кожною групою "Назва + Поле", щоб вони не злипалися */
+  .settings-form-group {
+    margin-bottom: 20px !important;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    /* Відступ між лейблом і самим інпутом */
+  }
+
   .settings-grid {
     grid-template-columns: 1fr !important;
+    gap: 0 !important;
+    /* Прибираємо гап сітки, бо тепер працює margin у form-group */
   }
 
-  .password-row {
-    flex-direction: column !important;
-  }
-
-  .btn-outline-secondary {
+  /* ФІКС: Випадаючі списки та інпути */
+  .settings-input,
+  .settings-select {
     width: 100% !important;
-    margin-top: 8px;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    height: 45px !important;
+    /* Робимо однакову зручну висоту */
+    padding: 10px 12px !important;
+    background-color: #27272a !important;
+    /* Темний фон як у тебе */
+    border: 1px solid #3f3f46 !important;
+    color: #f4f4f5 !important;
+    border-radius: 8px !important;
   }
 
-  .avatar-upload-container {
-    flex-direction: column;
-    align-items: flex-start;
+  /* Окремий фікс для селекта, щоб стрілочка не перекривала текст */
+  .settings-select {
+    cursor: pointer;
+    appearance: none;
+    /* Прибираємо стандартну стрілку, якщо хочеш кастомну, або залиш так */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 40px !important;
+  }
+
+  /* ФІКС: Перемикачі (Email, SMS, Push) */
+  .switch-wrapper {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100% !important;
+    padding: 12px 16px !important;
+    background-color: #1c1c1f;
+    border-radius: 12px;
+    border: 1px solid #27272a;
+    margin-bottom: 10px !important;
+    /* Відступ між плашками */
+    box-sizing: border-box;
+  }
+
+  .switch-wrapper span {
+    flex: 1;
+    padding-right: 15px;
+    font-size: 0.95rem;
+    text-align: left;
+  }
+
+  /* ФІКС: Блок пароля (щоб Новий пароль і Кнопка не злипалися) */
+  .password-row-action {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    /* Цей гап розклеїть інпут і кнопку Оновити */
+    margin-top: 8px !important;
+  }
+
+  .password-row-action button {
+    width: 100% !important;
+    margin-top: 0 !important;
+    height: 45px !important;
+  }
+
+  /* Таби (Профіль, Безпека...) */
+  .settings-tabs-scrollable {
+    display: flex !important;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    gap: 8px !important;
+    padding-bottom: 8px !important;
+    margin-bottom: 20px !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .settings-tab-btn {
+    flex: 0 0 auto !important;
+    padding: 8px 16px !important;
   }
 
   /* --- Модальні вікна --- */

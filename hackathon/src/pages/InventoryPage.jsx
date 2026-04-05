@@ -119,7 +119,7 @@ const InventoryPage = () => {
   };
 
   return (
-    <div className="app-main animate-in">
+    <div className="app-main inventory-page animate-in">
 
       {/* HEADER */}
       <div className="inventory-header">
@@ -159,11 +159,12 @@ const InventoryPage = () => {
       </div>
 
       {/* TABLE */}
-      <div style={{
+      <div className="inventory-table-wrapper" style={{
         backgroundColor: 'var(--bg-panel)', border: '1px solid var(--border)',
-        borderRadius: '12px', overflow: 'hidden'
+        borderRadius: '12px'
       }}>
-        <div style={{
+        {/* Хедер таблиці */}
+        <div className="inventory-table-row" style={{
           display: 'grid', gridTemplateColumns: gridColumns,
           padding: '12px 24px', borderBottom: '1px solid var(--border)',
           backgroundColor: 'var(--bg-dark)'
@@ -174,12 +175,13 @@ const InventoryPage = () => {
           {canManageInventory && <span style={{ fontSize: '0.7rem', fontWeight: '700', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('col_action') || 'Action'}</span>}
         </div>
 
+        {/* Дані таблиці */}
         {filteredData.map((item, idx) => {
           const status = getStatus(item.qty, item.maxQty, t);
           const pct = item.maxQty > 0 ? Math.min((item.qty / item.maxQty) * 100, 100) : 0;
 
           return (
-            <div key={item.sku} style={{
+            <div key={item.sku} className="inventory-table-row" style={{
               display: 'grid', gridTemplateColumns: gridColumns,
               padding: '16px 24px', alignItems: 'center',
               borderBottom: idx < filteredData.length - 1 ? '1px solid var(--border)' : 'none',
@@ -239,6 +241,7 @@ const InventoryPage = () => {
         )}
       </div>
 
+      {/* МОДАЛКА ЗАЛИШАЄТЬСЯ БЕЗ ЗМІН */}
       {isModalOpen && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="animate-in" style={{ backgroundColor: 'var(--bg-panel)', padding: '32px', borderRadius: '16px', width: '420px', border: '1px solid var(--border)', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>

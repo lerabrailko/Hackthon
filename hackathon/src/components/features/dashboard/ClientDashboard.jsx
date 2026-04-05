@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { CustomSelect } from '../../ui/CustomSelect';
+import { CustomNumberInput } from '../../ui/CustomNumberInput';
 import { useGlobalContext } from '../../../context/GlobalStore';
 import { useNotify } from '../../../context/NotificationContext';
 import { useLang } from '../../../context/LanguageContext';
@@ -79,7 +81,7 @@ const ClientDashboard = () => {
   const myOrders = requests.filter(r => r.status !== 'DELIVERED');
 
   return (
-    <div style={{ display: 'flex', height: '100%', backgroundColor: '#09090b', color: '#d4d4d8', fontFamily: 'system-ui, sans-serif' }}>
+    <div className="client-dashboard-container" style={{ display: 'flex', height: '100%', backgroundColor: '#09090b', color: '#d4d4d8', fontFamily: 'system-ui, sans-serif' }}>
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRight: '1px solid #27272a', position: 'relative' }}>
         <div style={{ display: 'flex', padding: '24px 24px 0 24px', borderBottom: '1px solid #27272a' }}>
@@ -244,7 +246,7 @@ const ClientDashboard = () => {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '32px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: '#a1a1aa', textTransform: 'uppercase', marginBottom: '8px' }}>Quantity Needed</label>
-                  <input type="number" min="1" max={cartItem.qty} placeholder={`Max: ${cartItem.qty}`} value={quantity} onChange={(e) => setQuantity(e.target.value)} style={{ width: '100%', backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '8px', padding: '14px 16px', color: '#f4f4f5', fontSize: '1rem', outline: 'none', boxSizing: 'border-box' }} />
+                  <CustomNumberInput min={1} max={cartItem.qty} placeholder={`Max: ${cartItem.qty}`} value={quantity} onChange={(e) => setQuantity(e.target.value)} style={{ width: "100%", height: "48px" }} className="settings-select" />
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: '#a1a1aa', textTransform: 'uppercase', marginBottom: '8px' }}>Delivery Address</label>
@@ -252,11 +254,7 @@ const ClientDashboard = () => {
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: '#a1a1aa', textTransform: 'uppercase', marginBottom: '8px' }}>Urgency Level</label>
-                  <select value={priority} onChange={(e) => setPriority(e.target.value)} style={{ width: '100%', backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '8px', padding: '14px 16px', color: '#f4f4f5', fontSize: '1rem', outline: 'none', boxSizing: 'border-box' }}>
-                    <option value="NORMAL">{t('Normal')}</option>
-                    <option value="HIGH">{t('High Priority')}</option>
-                    <option value="CRITICAL">{t('Critical Alert')}</option>
-                  </select>
+                  <CustomSelect value={priority} onChange={(e) => setPriority(e.target.value)} style={{ width: "100%", height: "48px" }} className="settings-select" options={[{value:"NORMAL", label:t("Normal")}, {value:"HIGH", label:t("High Priority")}, {value:"CRITICAL", label:t("Critical Alert")}]} />
                 </div>
               </div>
 

@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { CustomSelect } from '../../ui/CustomSelect';
+import { CustomNumberInput } from '../../ui/CustomNumberInput';
 import { PRIORITY_LEVELS } from '../../../constants/statuses';
 import { useNotify } from '../../../context/NotificationContext';
 import { validateRequired, validatePositiveNumber } from '../../../utils/validators';
@@ -74,9 +76,7 @@ const AddRequestForm = ({ onAdd }) => {
       <div className="form-row-flex">
         <div className="form-group flex-1">
           <label className="settings-label">CARGO TYPE</label>
-          <select value={cargo} onChange={(e) => setCargo(e.target.value)} className="settings-select">
-            {CARGO_TYPES.map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
+          <CustomSelect className="settings-select" style={{height: "45px"}} value={cargo} onChange={(e) => setCargo(e.target.value)} options={CARGO_TYPES.map(c => ({value: c, label: c}))} />
         </div>
         <div className="form-group width-120">
           <label className="settings-label">UNITS REQ.</label>
@@ -94,11 +94,7 @@ const AddRequestForm = ({ onAdd }) => {
 
       <div className="form-group mb-large">
         <label className="settings-label">URGENCY</label>
-        <select value={priority} onChange={(e) => setPriority(e.target.value)} className="settings-select">
-          <option value={PRIORITY_LEVELS.NORMAL}>Normal</option>
-          <option value={PRIORITY_LEVELS.HIGH}>High Priority</option>
-          <option value={PRIORITY_LEVELS.CRITICAL}>Critical Alert</option>
-        </select>
+        <CustomSelect className="settings-select" style={{height: "45px"}} value={priority} onChange={(e) => setPriority(e.target.value)} options={[{value: PRIORITY_LEVELS.NORMAL, label: "Normal"}, {value: PRIORITY_LEVELS.HIGH, label: "High Priority"}, {value: PRIORITY_LEVELS.CRITICAL, label: "Critical Alert"}]} />
       </div>
 
       <button type="submit" className="settings-btn-save w-100">

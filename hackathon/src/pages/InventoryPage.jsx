@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { CustomSelect } from '../components/ui/CustomSelect';
+import { CustomNumberInput } from '../components/ui/CustomNumberInput';
 import { useAuth } from '../context/AuthContext';
 import { useGlobalContext } from '../context/GlobalStore';
 import { useNotify } from '../context/NotificationContext';
@@ -35,8 +37,6 @@ const InventoryPage = () => {
 
   const canManageInventory = user?.role === 'ADMIN' || user?.role === 'DISPATCHER';
   
-  // ВИПРАВЛЕНО: Остання колонка жорстко зафіксована на 110px
-  const gridColumns = canManageInventory ? '2fr 1.2fr 1fr 1.6fr 110px' : '2fr 1.2fr 1fr 1.6fr';
 
   const filteredData = inventory.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -147,15 +147,12 @@ const InventoryPage = () => {
           onChange={e => setSearch(e.target.value)}
           className="settings-input inventory-search"
         />
-        <select
+        <CustomSelect
           value={category}
           onChange={e => setCategory(e.target.value)}
           className="settings-select inventory-select"
-        >
-          {CATEGORIES.map(c => (
-            <option key={c} value={c}>{c === 'All' ? (t('all_categories') || 'All Categories') : (t(c) || c)}</option>
-          ))}
-        </select>
+          options={CATEGORIES.map(c => ({ value: c, label: c === 'All' ? (t('all_categories') || 'All Categories') : (t(c) || c) }))}
+        />
       </div>
 
       {/* TABLE */}
@@ -175,7 +172,6 @@ const InventoryPage = () => {
           {canManageInventory && <span style={{ fontSize: '0.7rem', fontWeight: '700', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('col_action') || 'Action'}</span>}
         </div>
 
-        {/* Дані таблиці */}
         {filteredData.map((item, idx) => {
           const status = getStatus(item.qty, item.maxQty, t);
           const pct = item.maxQty > 0 ? Math.min((item.qty / item.maxQty) * 100, 100) : 0;
@@ -264,13 +260,11 @@ const InventoryPage = () => {
                   </div>
                   <div className="settings-form-group">
                     <label className="settings-label">{t('modal_category') || 'Category'}</label>
-                    <select value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} className="settings-select">
-                      {CATEGORIES.filter(c => c !== 'All').map(c => <option key={c} value={c}>{t(c) || c}</option>)}
-                    </select>
+                    <CustomSelect className="settings-select" style={{height: "45px"}} value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} options={CATEGORIES.map(c => ({value: c, label: c}))} />
                   </div>
                   <div className="settings-form-group">
                     <label className="settings-label">{t('modal_max_capacity') || 'Maximum Capacity'}</label>
-                    <input type="number" className={`settings-input ${fieldErrors.maxQty ? 'input-error' : ''}`} value={formData.maxQty} onChange={e => { setFormData({ ...formData, maxQty: e.target.value }); setFieldErrors({ ...fieldErrors, maxQty: null }); }} />
+                    <CustomNumberInput className={`settings-input ${fieldErrors.maxQty ? 'input-error' : ''}`} value={formData.maxQty} onChange={e => { setFormData({ ...formData, maxQty: e.target.value }); setFieldErrors({ ...fieldErrors, maxQty: null }); }} />
                     {fieldErrors.maxQty && <span className="field-error-text">{fieldErrors.maxQty}</span>}
                   </div>
                 </>
@@ -283,7 +277,7 @@ const InventoryPage = () => {
               )}
               <div className="settings-form-group">
                 <label className="settings-label">{t('modal_current_qty') || 'Current Quantity'}</label>
-                <input type="number" className={`settings-input ${fieldErrors.qty ? 'input-error' : ''}`} value={formData.qty} onChange={e => { setFormData({ ...formData, qty: e.target.value }); setFieldErrors({ ...fieldErrors, qty: null }); }} />
+                <CustomNumberInput className={`settings-input ${fieldErrors.qty ? 'input-error' : ''}`} value={formData.qty} onChange={e => { setFormData({ ...formData, qty: e.target.value }); setFieldErrors({ ...fieldErrors, qty: null }); }} />
                 {fieldErrors.qty && <span className="field-error-text">{fieldErrors.qty}</span>}
               </div>
               <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>

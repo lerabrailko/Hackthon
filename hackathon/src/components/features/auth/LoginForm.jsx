@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { CustomSelect } from '../../ui/CustomSelect';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import { useLang } from '../../../context/LanguageContext';
@@ -105,14 +106,7 @@ const LoginForm = () => {
         {isRegisterMode && (
           <div className="settings-form-group">
             <label className="settings-label">{t('your_role') || 'YOUR ROLE'}</label>
-            <select 
-              className="settings-select" 
-              value={role} 
-              onChange={(e) => setRole(e.target.value)}
-            >
-              <option value="CUSTOMER">{t('role_client') || 'Client (Request Items)'}</option>
-              <option value="DISPATCHER">{t('role_dispatcher') || 'Dispatcher (Manage Deliveries)'}</option>
-            </select>
+            <CustomSelect className="settings-select" style={{height: "45px"}} value={role} onChange={(e) => setRole(e.target.value)} options={[{value:"CUSTOMER", label:"Customer / Requester"}, {value:"DRIVER", label:"Driver / Courier"}, {value:"DISPATCHER", label:"Dispatcher Hub"}, {value:"ADMIN", label:"System Administrator"}]} />
           </div>
         )}
 

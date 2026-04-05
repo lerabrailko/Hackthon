@@ -4,6 +4,8 @@ import { useLang } from '../context/LanguageContext';
 import { useNotify } from '../context/NotificationContext';
 import { validateEmail, validatePhone, validatePassword, validateRequired } from '../utils/validators';
 
+const DEFAULT_AVATAR = "/favicon.svg";
+
 const SettingsPage = () => {
   const { user, updateProfile, changePassword } = useAuth();
   const { lang, changeLanguage, theme, changeTheme, t } = useLang();
@@ -82,16 +84,9 @@ const SettingsPage = () => {
 
   const handlePasswordUpdate = async () => {
     const errors = {};
-    
-    if (!validateRequired(currentPassword)) {
-      errors.currentPassword = t('error_required') || 'Field is required';
-    }
-    
-    if (!validateRequired(newPassword)) {
-      errors.newPassword = t('error_required') || 'Field is required';
-    } else if (!validatePassword(newPassword)) {
-      errors.newPassword = t('error_password_length') || 'Password too short';
-    }
+    if (!validateRequired(currentPassword)) errors.currentPassword = t('error_required') || 'Field is required';
+    if (!validateRequired(newPassword)) errors.newPassword = t('error_required') || 'Field is required';
+    else if (!validatePassword(newPassword)) errors.newPassword = t('error_password_length') || 'Password too short';
 
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
@@ -120,16 +115,9 @@ const SettingsPage = () => {
   const handleSave = (e) => {
     e.preventDefault();
     const errors = {};
-
-    if (!validateRequired(formData.name)) {
-      errors.name = t('error_required') || 'Field is required';
-    }
-    if (formData.email && !validateEmail(formData.email)) {
-      errors.email = 'Invalid email address';
-    }
-    if (formData.phone && !validatePhone(formData.phone)) {
-      errors.phone = 'Invalid phone number';
-    }
+    if (!validateRequired(formData.name)) errors.name = t('error_required') || 'Field is required';
+    if (formData.email && !validateEmail(formData.email)) errors.email = 'Invalid email address';
+    if (formData.phone && !validatePhone(formData.phone)) errors.phone = 'Invalid phone number';
 
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
@@ -171,12 +159,25 @@ const SettingsPage = () => {
           {activeTab === 'profile' && (
             <div className="animate-in">
               <div className="avatar-upload-container">
-                <div className="avatar-preview" onClick={() => fileInputRef.current.click()}>
-                  {formData.avatar ? (
-                    <img src={formData.avatar} alt="Avatar" />
-                  ) : (
-                    <span className="avatar-placeholder">{formData.name ? formData.name.charAt(0) : '?'}</span>
-                  )}
+                {/* ОНОВЛЕНИЙ БЛОК АВАТАРКИ: тепер використовуємо favicon.svg */}
+                <div 
+                  className="avatar-preview" 
+                  onClick={() => fileInputRef.current.click()}
+                  style={{ 
+                    overflow: 'hidden', 
+                    padding: '10px', 
+                    backgroundColor: 'var(--bg-dark)', 
+                    border: '1px solid var(--border)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <img 
+                    src={formData.avatar || DEFAULT_AVATAR} 
+                    alt="Avatar" 
+                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                  />
                 </div>
                 <div className="avatar-actions">
                   <button type="button" onClick={() => fileInputRef.current.click()} className="settings-btn-save btn-small">
@@ -346,7 +347,6 @@ const SettingsPage = () => {
                     </button>
                   </div>
                 </div>
-
               </div>
             </div>
           )}

@@ -2094,6 +2094,7 @@ body.light-theme ::-webkit-scrollbar-thumb         { background: #c4c4c8; }
 
 
 @media (max-width: 1024px) {
+  .dashboard-grid           { grid-template-columns: 1fr; height: auto; }
   .admin-dashboard-layout   { flex-direction: column; height: auto; overflow-y: auto; }
   .queue-panel,
   .manifest-panel           { width: 100%; border-right: none; }
@@ -2363,4 +2364,116 @@ body.light-theme ::-webkit-scrollbar-thumb         { background: #c4c4c8; }
   .kpi-sync-sidebar {
     flex: 1 !important;
   }
+}
+/* ===== CUSTOM UI COMPONENTS ===== */
+div.custom-select-container {
+  position: relative;
+  width: 100%;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  background-image: none !important;
+}
+.custom-select-trigger {
+  width: 100%;
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px !important;
+  background-color: var(--bg-input) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+  cursor: pointer;
+  background-image: none !important;
+  outline: none;
+  height: 45px;
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+.custom-select-trigger:focus, 
+.custom-select-container.open .custom-select-trigger {
+  border-color: var(--accent) !important;
+}
+.custom-select-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background-color: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  font-size: 0.95rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.custom-select-option {
+  padding: 10px 14px;
+  cursor: pointer;
+  color: var(--text-primary);
+  transition: background-color 0.15s ease, color 0.15s ease;
+  word-break: break-word;
+}
+.custom-select-option:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+.custom-select-option.selected {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.custom-number-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.custom-number-input {
+  width: 100% !important;
+  padding-right: 70px !important; /* give space for buttons */
+}
+/* hide the standard controls globally again just in case */
+.custom-number-input::-webkit-inner-spin-button,
+.custom-number-input::-webkit-outer-spin-button {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  display: none !important;
+  margin: 0;
+}
+.custom-number-input {
+  -moz-appearance: textfield !important;
+}
+
+.custom-number-controls {
+  position: absolute;
+  right: 6px;
+  display: flex;
+  gap: 4px;
+}
+.custom-number-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.custom-number-btn:hover {
+  background: var(--border);
+  color: var(--text-primary);
+}
+.custom-number-btn:active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
 }

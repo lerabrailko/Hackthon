@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { CustomSelect } from '../components/ui/CustomSelect';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LanguageContext'; 
 import { useNotify } from '../context/NotificationContext';
@@ -159,7 +160,6 @@ const SettingsPage = () => {
           {activeTab === 'profile' && (
             <div className="animate-in">
               <div className="avatar-upload-container">
-                {/* ОНОВЛЕНИЙ БЛОК АВАТАРКИ: тепер використовуємо favicon.svg */}
                 <div 
                   className="avatar-preview" 
                   onClick={() => fileInputRef.current.click()}
@@ -206,12 +206,7 @@ const SettingsPage = () => {
                 
                 <div className="settings-form-group">
                   <label className="settings-label">{t('system_role')}</label>
-                  <select className="settings-select" value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value})}>
-                    <option value="ADMIN">System Admin</option>
-                    <option value="DISPATCHER">Dispatcher</option>
-                    <option value="CUSTOMER">Customer</option>
-                    <option value="DRIVER">Driver</option>
-                  </select>
+                  <CustomSelect className="settings-select" style={{height: "45px"}} value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value})} options={[{value:"ADMIN", label:"System Admin"}, {value:"DISPATCHER", label:"Dispatcher"}, {value:"CUSTOMER", label:"Customer"}, {value:"DRIVER", label:"Driver"}]} />
                 </div>
 
                 <div className="settings-form-group">
@@ -243,17 +238,11 @@ const SettingsPage = () => {
             <div className="animate-in settings-section-spaced">
               <div className="settings-form-group">
                 <label className="settings-label">{t('lang_label')}</label>
-                <select className="settings-select" value={lang} onChange={(e) => changeLanguage(e.target.value)}>
-                  <option value="en">English</option>
-                  <option value="uk">Українська</option>
-                </select>
+                <CustomSelect className="settings-select" style={{height: "45px"}} value={lang} onChange={(e) => changeLanguage(e.target.value)} options={[{value:"en", label:"English"}, {value:"uk", label:"Українська"}]} />
               </div>
               <div className="settings-form-group">
                 <label className="settings-label">{t('theme_label')}</label>
-                <select className="settings-select" value={theme} onChange={(e) => changeTheme(e.target.value)}>
-                  <option value="dark">{t('theme_dark')}</option>
-                  <option value="light">{t('theme_light')}</option>
-                </select>
+                <CustomSelect className="settings-select" style={{height: "45px"}} value={theme} onChange={(e) => changeTheme(e.target.value)} options={[{value:"dark", label:t("theme_dark")}, {value:"light", label:t("theme_light")}]} />
               </div>
             </div>
           )}

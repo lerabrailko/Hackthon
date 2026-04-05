@@ -73,13 +73,11 @@ const DriverDashboard = () => {
   const { showNotification } = useNotify();
   const { t, theme }        = useLang();
 
-  // Активні маршрути — доставлені вже відфільтровані (статус DELIVERED не входить)
   const activeRoute = requests.filter(r =>
     ['IN_TRANSIT', 'DELAYED'].includes(r.status)
   );
 
   const [selectedPointId, setSelectedPointId] = useState(activeRoute[0]?.id ?? null);
-  // completedIds — лише для візуального відображення маркерів на карті
   const [completedIds, setCompletedIds] = useState([]);
 
   const currentPoint = activeRoute.find(r => r.id === selectedPointId) ?? activeRoute[0] ?? null;
@@ -90,7 +88,6 @@ const DriverDashboard = () => {
 
   const handleDelivery = (id) => {
     updateRequestStatus(id, 'DELIVERED');
-    // Зберігаємо для анімації карти до того як компонент ре-рендериться
     setCompletedIds(prev => [...prev, id]);
     showNotification(
       tx(t, 'cargo_unloaded', 'Cargo successfully unloaded.'),

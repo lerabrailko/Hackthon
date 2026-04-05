@@ -7,6 +7,7 @@ import { calculatePriorityScore } from '../utils/priority';
 import ClientDashboard from '../components/features/dashboard/ClientDashboard';
 import DriverDashboard from '../components/features/dashboard/DriverDashboard';
 import { MapContainer, TileLayer, Marker, Polyline, useMap } from 'react-leaflet';
+import { CustomSelect } from '../components/ui/CustomSelect';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -59,10 +60,7 @@ const AdminDashboard = () => {
   let pendingQueue = requests.filter(r => (r.status === 'PENDING' || r.status === 'DRAFT') && !selectedForFleet.find(s => s.id === r.id));
   if (filterCategory !== 'All') pendingQueue = pendingQueue.filter(r => r.items.includes(filterCategory));
   
-  // Використовуємо новий алгоритм для сортування черги
-  pendingQueue.sort((a, b) => calculatePriorityScore(b) - calculatePriorityScore(a));
 
-  const allCategories = ['All', 'Medicine', 'Food', 'Water', 'Equipment', 'Fuel'];
   const currentPayload = selectedForFleet.reduce((sum, req) => sum + req.quantity, 0);
   const fillPercentage = Math.min((currentPayload / TRUCK_CAPACITY) * 100, 100);
   const isOverloaded = currentPayload > TRUCK_CAPACITY;
@@ -87,15 +85,13 @@ const AdminDashboard = () => {
       <div className="queue-panel">
         <div className="queue-header">
           <h2 className="queue-title">{t('available_orders') || 'Available Orders'}</h2>
-          <select 
-            value={filterCategory} 
-            onChange={(e) => setFilterCategory(e.target.value)} 
+          <CustomSelect
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
             className="settings-select w-full"
-          >
-            {allCategories.map(cat => <option key={cat} value={cat}>{t(cat)}</option>)}
-          </select>
+            options={allCategories.map(cat => ({ value: cat, label: t(cat) || cat }))}
+          />
         </div>
-        
         <div className="queue-list">
           {pendingQueue.map((req) => {
             const score = calculatePriorityScore(req);

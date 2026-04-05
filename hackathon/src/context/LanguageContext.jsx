@@ -72,7 +72,7 @@ const translations = {
     of: 'of',
 
     dispatch_queue: 'Dispatch Queue',
-    add_queue: '+ ADD TO QUEUE',
+    add_queue: 'ADD TO QUEUE',
     cargo_manifest: 'Cargo Manifest',
     dest_stock: 'Destination Stock Level',
     req_units: 'Requested',
@@ -87,7 +87,7 @@ const translations = {
     urgency: 'URGENCY',
     submit_request: 'SUBMIT REQUEST',
 
-    login_title: 'Right Direction',
+    login_title: 'DispatchX', 
     login_id: 'LOGIN ID',
     password: 'PASSWORD',
     login_btn: 'LOGIN',
@@ -102,6 +102,10 @@ const translations = {
     role_dispatcher: 'Supplier/Dispatcher (Manage Deliveries)',
     link_login: 'Already have an account? Login',
     link_register: "Don't have an account? Register",
+    auth_subtitle: 'Authentication System', 
+    error_required: 'This field is required',
+    error_password_length: 'Password must be at least 6 characters long.',
+    error_short_pass: 'Password too short',
 
     notifications_title: 'Notifications',
     clear_all: 'Clear all',
@@ -129,7 +133,7 @@ const translations = {
     inventory_subtitle: 'Manage and monitor real-time stock across all hubs.',
     inventory_subtitle_manage: 'Manage and monitor real-time stock across all hubs.',
     inventory_subtitle_view: 'View available supplies in our network.',
-    add_shipment: '+ Add Shipment',
+    add_shipment: ' Add Shipment',
     search_placeholder: 'Search by SKU or Name...',
     all_categories: 'All Categories',
     col_sku: 'SKU & NAME',
@@ -200,6 +204,20 @@ const translations = {
     current_route: 'Current Route',
     report_issue: 'Report Issue',
     mark_arrived: 'Mark as Arrived',
+
+    // Нові ключі для ClientDashboard
+    create_order: 'Create Order',
+    my_active_orders: 'My Active Orders',
+    live_supply_catalog: 'Live Supply Catalog',
+    select_items_to_start: 'Select items to start order configuration',
+    search_catalog: 'Search catalog...',
+    available_label: 'AVAILABLE',
+    hub_label: 'HUB',
+    empty_label: 'EMPTY',
+    order_config: 'Order Configuration',
+    finalize_delivery: 'Finalize delivery details',
+    please_select_item: 'Please select an item',
+    click_any_card: 'Click on any card in the catalog to begin',
   },
 
   uk: {
@@ -211,6 +229,13 @@ const translations = {
     menu_settings: 'Налаштування',
     sign_out: 'Вийти',
     close: 'Закрити',
+
+    step_processing: 'Обробка',
+step_dispatched: 'Відправлено',
+destination: 'Призначення',
+live_tracking: 'Відстеження',
+contact_driver: 'Зв\'язок з водієм',
+no_active_orders: 'Наразі немає активних замовлень.',
 
     save_btn: 'Зберегти зміни',
     processing: 'ОБРОБКА...',
@@ -288,7 +313,17 @@ const translations = {
     urgency: 'ТЕРМІНОВІСТЬ',
     submit_request: 'ВІДПРАВИТИ ЗАПИТ',
 
-    login_title: 'Right Direction',
+    exit_route: 'Вийти',
+fleet_status: 'СТАТУС ТРАНСПОРТУ',
+active_route: 'АКТИВНИЙ МАРШРУТ',
+stops_left: 'зупинок залишилось',
+stop_label: 'ЗУПИНКА',
+destination_address: 'АДРЕСА ПРИЗНАЧЕННЯ',
+quantity: 'КІЛЬКІСТЬ',
+confirm_unload: 'ПІДТВЕРДИТИ РОЗВАНТАЖЕННЯ',
+report_delay_issue: 'Повідомити про затримку / проблему',
+
+    login_title: 'DispatchX', 
     login_id: 'ЛОГІН',
     password: 'ПАРОЛЬ',
     login_btn: 'УВІЙТИ',
@@ -303,6 +338,11 @@ const translations = {
     role_dispatcher: 'Диспетчер (Управління)',
     link_login: 'Вже є акаунт? Увійти',
     link_register: 'Немає акаунту? Зареєструватися',
+    auth_subtitle: 'Система Автентифікації', 
+
+    error_required: 'Це поле обов\'язкове',
+    error_password_length: 'Пароль має містити мінімум 6 символів.',
+    error_short_pass: 'Пароль надто короткий',
 
     notifications_title: 'Сповіщення',
     clear_all: 'Очистити все',
@@ -401,6 +441,19 @@ const translations = {
     current_route: 'Поточний маршрут',
     report_issue: 'Повідомити про проблему',
     mark_arrived: 'Позначити як прибув',
+
+    create_order: 'Створити Замовлення',
+    my_active_orders: 'Мої Активні Замовлення',
+    live_supply_catalog: 'Каталог Припасів',
+    select_items_to_start: 'Оберіть товари для конфігурації замовлення',
+    search_catalog: 'Пошук в каталозі...',
+    available_label: 'ДОСТУПНО',
+    hub_label: 'ХАБ',
+    empty_label: 'ПОРОЖНЬО',
+    order_config: 'Конфігурація Замовлення',
+    finalize_delivery: 'Завершити деталі доставки',
+    please_select_item: 'Будь ласка, оберіть товар',
+    click_any_card: 'Натисніть на будь-яку картку в каталозі, щоб почати',
   }
 };
 

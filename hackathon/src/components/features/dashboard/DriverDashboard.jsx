@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useGlobalContext } from '../../../context/GlobalStore';
 import { useAuth } from '../../../context/AuthContext';
 import { useNotify } from '../../../context/NotificationContext';
+import { useLang } from '../../../context/LanguageContext'; 
 import { MapContainer, TileLayer, Marker, Tooltip, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// === КАСТОМНИЙ МАРКЕР З ІКОНКОЮ ===
 const createCustomMarker = (isActive) => new L.DivIcon({
   className: 'custom-driver-marker',
   html: `
@@ -30,7 +30,6 @@ const createCustomMarker = (isActive) => new L.DivIcon({
   iconAnchor: [18, 18],
 });
 
-// Контролер для центрування карти
 const MapController = ({ center }) => {
   const map = useMap();
   useEffect(() => {
@@ -43,6 +42,7 @@ const DriverDashboard = () => {
   const { requests, updateRequestStatus } = useGlobalContext();
   const { logout } = useAuth();
   const { showNotification } = useNotify();
+  const { t } = useLang(); 
 
   const activeRoute = requests.filter(r => ['IN_TRANSIT', 'DELAYED'].includes(r.status));
   const [selectedPointId, setSelectedPointId] = useState(activeRoute[0]?.id);
@@ -51,23 +51,23 @@ const DriverDashboard = () => {
 
   const handleDelivery = (id) => {
     updateRequestStatus(id, 'DELIVERED');
-    showNotification('Cargo successfully unloaded.', 'success');
+    showNotification(t('cargo_unloaded') || 'Cargo successfully unloaded.', 'success');
     const remaining = activeRoute.filter(r => r.id !== id);
     if (remaining.length > 0) setSelectedPointId(remaining[0].id);
   };
 
   const handleSOS = (id) => {
     updateRequestStatus(id, 'DELAYED');
-    showNotification('Issue reported. Dispatcher notified.', 'error');
+    showNotification(t('issue_reported_toast') || 'Issue reported. Dispatcher notified.', 'error');
   };
 
   if (activeRoute.length === 0) {
     return (
       <div style={{ display: 'flex', height: '100vh', width: '100vw', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', backgroundColor: '#09090b', color: '#a1a1aa' }}>
-        <h2 style={{ color: '#fafafa', fontSize: '2rem', marginBottom: '8px', fontWeight: '700' }}>NO ACTIVE ROUTES</h2>
-        <p style={{ marginBottom: '24px' }}>Awaiting dispatch orders from control center.</p>
+        <h2 style={{ color: '#fafafa', fontSize: '2rem', marginBottom: '8px', fontWeight: '700' }}>{t('no_active_routes') || 'NO ACTIVE ROUTES'}</h2>
+        <p style={{ marginBottom: '24px' }}>{t('awaiting_dispatch') || 'Awaiting dispatch orders from control center.'}</p>
         <button onClick={logout} style={{ padding: '12px 24px', backgroundColor: '#18181b', border: '1px solid #3f3f46', color: '#fafafa', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}>
-          LOGOUT
+          {t('sign_out') || 'LOGOUT'}
         </button>
       </div>
     );
@@ -76,7 +76,6 @@ const DriverDashboard = () => {
   return (
     <div style={{ display: 'flex', height: '100vh', width: '100vw', backgroundColor: '#09090b', overflow: 'hidden' }}>
 
-      {/* 1. ЛІВА ЧАСТИНА: КАРТА (60-70% екрану) */}
       <div style={{ flex: 1, position: 'relative' }}>
         <MapContainer center={currentPoint?.coords || [49.0, 31.0]} zoom={12} zoomControl={false} style={{ height: '100%', width: '100%', background: '#09090b' }}>
           <MapController center={currentPoint?.coords} />
@@ -96,30 +95,26 @@ const DriverDashboard = () => {
           ))}
         </MapContainer>
 
-        {/* Кнопка виходу поверх карти */}
         <button
           onClick={logout}
           style={{ position: 'absolute', top: '24px', left: '24px', zIndex: 1000, padding: '10px 16px', backgroundColor: '#18181b', border: '1px solid #3f3f46', color: '#a1a1aa', borderRadius: '8px', fontWeight: '600', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}
         >
-          Exit Route
+          {t('exit_route') || 'Exit Route'}
         </button>
       </div>
 
-      {/* 2. ПРАВА ПАНЕЛЬ: DIGITAL WAYBILL (Фіксована ширина, чітка структура) */}
       <div style={{ width: '420px', backgroundColor: '#18181b', borderLeft: '1px solid #27272a', display: 'flex', flexDirection: 'column', zIndex: 10 }}>
 
-        {/* СЕКЦІЯ 1: FLEET STATUS (Хедер) */}
         <div style={{ padding: '24px', borderBottom: '1px solid #27272a', backgroundColor: '#18181b' }}>
           <div style={{ fontSize: '0.75rem', fontWeight: '700', color: '#a1a1aa', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>
-            Fleet Status
+            {t('fleet_status') || 'Fleet Status'}
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ fontSize: '1.4rem', fontWeight: '800', color: '#3b82f6' }}>ACTIVE ROUTE</div>
-            <div style={{ fontSize: '0.9rem', color: '#a1a1aa', fontWeight: '500' }}>{activeRoute.length} stops left</div>
+            <div style={{ fontSize: '1.4rem', fontWeight: '800', color: '#3b82f6' }}>{t('active_route') || 'ACTIVE ROUTE'}</div>
+            <div style={{ fontSize: '0.9rem', color: '#a1a1aa', fontWeight: '500' }}>{activeRoute.length} {t('stops_left') || 'stops left'}</div>
           </div>
         </div>
 
-        {/* СЕКЦІЯ 2: ВИБІР ЗУПИНКИ */}
         <div style={{ display: 'flex', overflowX: 'auto', padding: '16px 24px', gap: '8px', borderBottom: '1px solid #27272a', backgroundColor: '#09090b' }}>
           {activeRoute.map((req, index) => (
             <div
@@ -130,8 +125,8 @@ const DriverDashboard = () => {
                 border: `1px solid ${selectedPointId === req.id ? '#3b82f6' : '#3f3f46'}`,
               }}
             >
-              <div style={{ fontSize: '0.7rem', fontWeight: '700', color: selectedPointId === req.id ? '#e0e7ff' : '#a1a1aa', marginBottom: '2px' }}>
-                STOP {index + 1}
+              <div style={{ fontSize: '0.7rem', fontWeight: '700', color: selectedPointId === req.id ? '#e0e7ff' : '#a1a1aa', marginBottom: '2px', textTransform: 'uppercase' }}>
+                {t('stop_label') || 'STOP'} {index + 1}
               </div>
               <div style={{ fontSize: '0.9rem', fontWeight: '600', color: selectedPointId === req.id ? '#ffffff' : '#e4e4e7' }}>
                 {req.location.split(',')[0]}
@@ -140,40 +135,37 @@ const DriverDashboard = () => {
           ))}
         </div>
 
-        {/* СЕКЦІЯ 3: ІНФОРМАЦІЯ ПРО ВАНТАЖ ТА ТОЧКУ (Скролиться) */}
         {currentPoint && (
           <div style={{ flex: 1, padding: '24px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
-            {/* Локація */}
             <div>
               <div style={{ color: '#a1a1aa', fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>
-                Destination Address
+                {t('destination_address') || 'Destination Address'}
               </div>
               <div style={{ fontSize: '1.4rem', fontWeight: '700', color: '#ffffff', lineHeight: '1.3' }}>
                 {currentPoint.location}
               </div>
             </div>
 
-            {/* Блок вантажу (Більш виразний, компактний) */}
             <div style={{ backgroundColor: '#27272a', borderRadius: '12px', padding: '20px', border: '1px solid #3f3f46', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <div style={{ color: '#a1a1aa', fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>
-                  Cargo Type
+                  {t('cargo_type') || 'Cargo Type'}
                 </div>
                 <div style={{ fontSize: '1.2rem', color: '#ffffff', fontWeight: '600' }}>
-                  {currentPoint.items}
+                  {t(currentPoint.items) || currentPoint.items}
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ color: '#a1a1aa', fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>
-                  Quantity
+                  {t('quantity') || 'Quantity'}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', justifyContent: 'flex-end' }}>
                   <span style={{ fontSize: '2.2rem', color: '#3b82f6', fontWeight: '800', lineHeight: '1' }}>
                     {currentPoint.quantity}
                   </span>
                   <span style={{ fontSize: '1rem', color: '#a1a1aa', fontWeight: '500' }}>
-                    units
+                    {t('units') || 'units'}
                   </span>
                 </div>
               </div>
@@ -182,29 +174,26 @@ const DriverDashboard = () => {
           </div>
         )}
 
-        {/* СЕКЦІЯ 4: ДІЇ (Фіксовані внизу) */}
         {currentPoint && (
           <div style={{ padding: '24px', borderTop: '1px solid #27272a', backgroundColor: '#18181b', display: 'flex', flexDirection: 'column', gap: '12px' }}>
 
-            {/* PRIMARY ACTION: Підтвердження */}
             <button
               onClick={() => handleDelivery(currentPoint.id)}
               style={{ width: '100%', padding: '18px', backgroundColor: '#3b82f6', color: '#ffffff', border: 'none', borderRadius: '8px', fontSize: '1.1rem', fontWeight: '700', cursor: 'pointer', transition: '0.2s', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)' }}
             >
-              CONFIRM UNLOAD
+              {t('confirm_unload') || 'CONFIRM UNLOAD'}
             </button>
 
-            {/* SECONDARY ACTION: Менш помітна, outline */}
             {currentPoint.status === 'DELAYED' ? (
               <div style={{ width: '100%', padding: '14px', border: '1px solid #ef4444', color: '#ef4444', borderRadius: '8px', textAlign: 'center', fontSize: '0.9rem', fontWeight: '600' }}>
-                Issue Reported
+                {t('issue_reported_status') || 'Issue Reported'}
               </div>
             ) : (
               <button
                 onClick={() => handleSOS(currentPoint.id)}
                 style={{ width: '100%', padding: '14px', backgroundColor: 'transparent', border: '1px solid #3f3f46', color: '#a1a1aa', borderRadius: '8px', fontSize: '0.95rem', fontWeight: '600', cursor: 'pointer', transition: '0.2s' }}
               >
-                Report delay / issue
+                {t('report_delay_issue') || 'Report delay / issue'}
               </button>
             )}
 

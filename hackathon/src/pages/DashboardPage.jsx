@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useGlobalContext } from '../context/GlobalStore';
 import { useNotify } from '../context/NotificationContext';
-import { useLang } from '../context/LanguageContext'; // Підключили контекст мови та теми
+import { useLang } from '../context/LanguageContext';
 import { calculatePriorityScore } from '../utils/priority';
 import ClientDashboard from '../components/features/dashboard/ClientDashboard';
 import DriverDashboard from '../components/features/dashboard/DriverDashboard';
@@ -11,12 +11,11 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 const TRUCK_CAPACITY = 20000; 
-const MAIN_HUB_COORDS = [50.4501, 30.5234]; // Київ
+const MAIN_HUB_COORDS = [50.4501, 30.5234];
 
 const SVGs = {
   package: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>,
   plus: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>,
-  minus: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>,
   truck: <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#3f3f46" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
 };
 
@@ -52,13 +51,15 @@ const MapBounds = ({ requests }) => {
 const AdminDashboard = () => {
   const { requests, updateRequestStatus } = useGlobalContext();
   const { showNotification } = useNotify();
-  const { t, theme } = useLang(); // Дістаємо переклад і тему
+  const { t, theme } = useLang();
   
   const [filterCategory, setFilterCategory] = useState('All');
   const [selectedForFleet, setSelectedForFleet] = useState([]);
 
   let pendingQueue = requests.filter(r => (r.status === 'PENDING' || r.status === 'DRAFT') && !selectedForFleet.find(s => s.id === r.id));
   if (filterCategory !== 'All') pendingQueue = pendingQueue.filter(r => r.items.includes(filterCategory));
+  
+  // Використовуємо новий алгоритм для сортування черги
   pendingQueue.sort((a, b) => calculatePriorityScore(b) - calculatePriorityScore(a));
 
   const allCategories = ['All', 'Medicine', 'Food', 'Water', 'Equipment', 'Fuel'];
@@ -76,7 +77,6 @@ const AdminDashboard = () => {
     setSelectedForFleet([]); 
   };
 
-  // Динамічний URL карти залежно від теми
   const tileUrl = theme === 'light' 
     ? 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
     : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
@@ -84,7 +84,6 @@ const AdminDashboard = () => {
   return (
     <div className="admin-dashboard-layout">
       
-      {/* ЛІВА ПАНЕЛЬ */}
       <div className="queue-panel">
         <div className="queue-header">
           <h2 className="queue-title">{t('available_orders') || 'Available Orders'}</h2>
@@ -122,7 +121,6 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* ПРАВА ПАНЕЛЬ */}
       <div className="manifest-panel">
         <div className="manifest-header">
           <h2 className="manifest-title">{t('truck_manifest') || 'Truck Manifest (AI-1020)'}</h2>

@@ -15,7 +15,15 @@ const INITIAL_INVENTORY = [
 const GlobalContext = createContext();
 
 export const GlobalProvider = ({ children }) => {
-  const [requests, setRequests] = useState(MOCK_REQUESTS);
+  // Новий алгоритм
+  const [requests, setRequests] = useState(() => 
+    MOCK_REQUESTS.map(req => ({
+      ...req,
+      burnRate: req.burnRate !== undefined ? req.burnRate : Math.floor(Math.random() * 8) + 1, // 1-8 од/год
+      hasDeferred: req.hasDeferred !== undefined ? req.hasDeferred : Math.random() > 0.85 // 15% шанс
+    }))
+  );
+  
   const [inventory, setInventory] = useState(INITIAL_INVENTORY);
 
   const addRequest = (newRequest) => setRequests(prev => [newRequest, ...prev]);
@@ -26,7 +34,6 @@ export const GlobalProvider = ({ children }) => {
     ));
   };
 
-  // Оновлення кількості товару на складі
   const updateInventoryQty = (sku, newQty) => {
     setInventory(prev => prev.map(item => {
       if (item.sku === sku) {
@@ -40,7 +47,6 @@ export const GlobalProvider = ({ children }) => {
     }));
   };
 
-  // Додавання нового товару (Shipment)
   const addInventoryItem = (newItem) => {
     setInventory(prev => [newItem, ...prev]);
   };
@@ -55,5 +61,4 @@ export const GlobalProvider = ({ children }) => {
   );
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const useGlobalContext = () => useContext(GlobalContext);

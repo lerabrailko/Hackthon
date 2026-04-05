@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
+import { useLang } from '../../../context/LanguageContext';
 import { ROUTES } from '../../../constants/routes';
+import { validateRequired, validatePassword } from '../../../utils/validators';
 
 const LoginForm = () => {
+  const { t } = useLang();
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('CUSTOMER');
+  
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -18,22 +22,34 @@ const LoginForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    const newErrors = {};
 
-    const errors = {};
-    if (!username.trim()) errors.username = 'Please enter your ID.';
-    if (!password.trim()) errors.password = 'Please enter your password.';
-    setFieldErrors(errors);
+    if (!validateRequired(username)) {
+      newErrors.username = t('error_required') || 'Please enter your ID.';
+    }
+    
+    if (!validateRequired(password)) {
+      newErrors.password = t('error_required') || 'Please enter your password.';
+    } else if (isRegisterMode && !validatePassword(password)) {
+      setError(t('error_password_length') || 'Password must be at least 6 characters long.');
+      newErrors.password = t('error_short_pass') || 'Password too short';
+    }
 
-    if (Object.keys(errors).length > 0) return;
+    if (Object.keys(newErrors).length > 0) {
+      setFieldErrors(newErrors);
+      return;
+    }
 
+    setFieldErrors({});
     setIsSubmitting(true);
+
     try {
       if (isRegisterMode) {
         await register(username, password, role);
       } else {
         await login(username, password);
       }
-      navigate(ROUTES.DASHBOARD);
+      navigate(ROUTES.DASHBOARD || '/');
     } catch (err) {
       setError(err.message || 'Access Denied. Invalid credentials.');
     } finally {
@@ -41,89 +57,98 @@ const LoginForm = () => {
     }
   };
 
-  const inputStyle = {
-    width: '100%', padding: '12px 16px', borderRadius: '8px',
-    border: '1px solid var(--border)', backgroundColor: 'var(--bg-dark)',
-    color: 'white', outline: 'none', fontSize: '0.9rem', marginBottom: '16px'
-  };
-
   return (
-    <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column' }}>
-
-      {error && (
-        <div style={{ padding: '10px', backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid var(--danger)', color: 'var(--danger)', borderRadius: '8px', fontSize: '0.8rem', textAlign: 'center', marginBottom: '16px' }}>
-          {error}
+    <div className="auth-card-container animate-in">
+      <div className="auth-header">
+        <div className="auth-logo-wrapper">
+          <div className="auth-logo"></div>
         </div>
-      )}
+        <h1 className="auth-title">
+          {isRegisterMode ? (t('register_btn') || 'Register') : (t('login_title') || 'DispatchX Login')}
+        </h1>
+        <p className="auth-subtitle">Authentication System</p>
+      </div>
 
-      <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '6px', fontWeight: '600' }}>
-        {isRegisterMode ? 'NEW LOGIN ID' : 'LOGIN ID'}
-      </label>
-      <input
-        type="text"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        onFocus={() => setFieldErrors(prev => ({ ...prev, username: '' }))}
-        placeholder={isRegisterMode ? 'Create an ID' : 'Enter ID'}
-        style={{ ...inputStyle, borderColor: fieldErrors.username ? 'var(--danger)' : 'var(--border)', marginBottom: fieldErrors.username ? '4px' : '16px' }}
-      />
-      {fieldErrors.username && (
-        <div style={{ color: 'var(--danger)', fontSize: '0.75rem', marginBottom: '16px' }}>
-          {fieldErrors.username}
+      <form onSubmit={handleSubmit} noValidate className="settings-section">
+        {error && (
+          <div className="auth-error-msg">
+            {error}
+          </div>
+        )}
+
+        <div className="settings-form-group">
+          <label className="settings-label">
+            {isRegisterMode ? (t('new_login_id') || 'NEW LOGIN ID') : (t('login_id') || 'LOGIN ID')}
+          </label>
+          <input
+            type="text"
+            className={`settings-input ${fieldErrors.username ? 'input-error' : ''}`}
+            value={username}
+            onChange={(e) => { setUsername(e.target.value); setFieldErrors(prev => ({ ...prev, username: '' })); setError(''); }}
+            placeholder={isRegisterMode ? (t('create_id') || 'Create an ID') : (t('enter_id') || 'Enter ID')}
+          />
+          {fieldErrors.username && <span className="field-error-text">{fieldErrors.username}</span>}
         </div>
-      )}
 
-      <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '6px', fontWeight: '600' }}>PASSWORD</label>
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        onFocus={() => setFieldErrors(prev => ({ ...prev, password: '' }))}
-        placeholder={isRegisterMode ? 'Create a Password' : 'Enter Password'}
-        style={{ ...inputStyle, borderColor: fieldErrors.password ? 'var(--danger)' : 'var(--border)', marginBottom: fieldErrors.password ? '4px' : '16px' }}
-      />
-      {fieldErrors.password && (
-        <div style={{ color: 'var(--danger)', fontSize: '0.75rem', marginBottom: '16px' }}>
-          {fieldErrors.password}
+        <div className="settings-form-group">
+          <label className="settings-label">{t('password') || 'PASSWORD'}</label>
+          <input
+            type="password"
+            className={`settings-input ${fieldErrors.password ? 'input-error' : ''}`}
+            value={password}
+            onChange={(e) => { setPassword(e.target.value); setFieldErrors(prev => ({ ...prev, password: '' })); setError(''); }}
+            placeholder={isRegisterMode ? (t('create_password') || 'Create a Password') : (t('enter_password') || 'Enter Password')}
+          />
+          {fieldErrors.password && <span className="field-error-text">{fieldErrors.password}</span>}
         </div>
-      )}
 
-      {isRegisterMode && (
-        <>
-          <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '6px', fontWeight: '600' }}>YOUR ROLE</label>
-          <select value={role} onChange={(e) => setRole(e.target.value)} style={inputStyle}>
-            <option value="CUSTOMER">Client (Request Items)</option>
-            <option value="DISPATCHER">Supplier/Dispatcher (Manage Deliveries)</option>
-          </select>
-        </>
-      )}
+        {isRegisterMode && (
+          <div className="settings-form-group">
+            <label className="settings-label">{t('your_role') || 'YOUR ROLE'}</label>
+            <select 
+              className="settings-select" 
+              value={role} 
+              onChange={(e) => setRole(e.target.value)}
+            >
+              <option value="CUSTOMER">{t('role_client') || 'Client (Request Items)'}</option>
+              <option value="DISPATCHER">{t('role_dispatcher') || 'Dispatcher (Manage Deliveries)'}</option>
+            </select>
+          </div>
+        )}
 
-      <button
-        type="submit" disabled={isSubmitting}
-        style={{
-          width: '100%', padding: '12px', borderRadius: '8px', border: 'none',
-          backgroundColor: isSubmitting ? 'var(--border)' : 'var(--accent)',
-          color: 'white', fontWeight: '600', cursor: isSubmitting ? 'not-allowed' : 'pointer',
-          marginTop: '8px'
-        }}
-      >
-        {isSubmitting ? 'PROCESSING...' : (isRegisterMode ? 'REGISTER' : 'LOGIN')}
-      </button>
+        <div className="settings-submit-wrapper mt-large">
+          <button
+            type="submit" 
+            disabled={isSubmitting}
+            className={`settings-btn-save auth-submit-btn ${isSubmitting ? 'processing' : ''}`}
+          >
+            {isSubmitting ? (t('processing') || 'PROCESSING...') : (isRegisterMode ? (t('register_btn') || 'REGISTER') : (t('login_btn') || 'LOGIN'))}
+          </button>
+        </div>
+      </form>
 
-      <div style={{ textAlign: 'center', marginTop: '16px' }}>
+      <div className="auth-toggle-wrapper">
         <button
           type="button"
           onClick={() => {
             setIsRegisterMode(!isRegisterMode);
             setError('');
             setFieldErrors({});
+            setUsername('');
+            setPassword('');
           }}
-          style={{ background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', fontSize: '0.9rem' }}
+          className="auth-toggle-btn"
         >
-          {isRegisterMode ? 'Already have an account? Login' : "Don't have an account? Register"}
+          {isRegisterMode ? (t('link_login') || 'Already have an account? Login') : (t('link_register') || "Don't have an account? Register")}
         </button>
       </div>
-    </form>
+
+      {!isRegisterMode && (
+        <div className="auth-hints text-center mt-small">
+          {t('login_hints') || 'Try: admin/123, disp/123, client/123, driver/123'}
+        </div>
+      )}
+    </div>
   );
 };
 

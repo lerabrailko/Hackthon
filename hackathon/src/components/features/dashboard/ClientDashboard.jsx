@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useGlobalContext } from '../../../context/GlobalStore';
 import { useNotify } from '../../../context/NotificationContext';
+import { useLang } from '../../../context/LanguageContext';
 import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// Іконка для машини
 const truckIcon = new L.DivIcon({
   className: 'custom-truck-marker',
   html: `<div style="background: #2563eb; border: 2px solid #fff; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg></div>`,
@@ -13,7 +13,7 @@ const truckIcon = new L.DivIcon({
   iconAnchor: [16, 16]
 });
 
-const MAIN_HUB_COORDS = [50.4501, 30.5234]; // Київ
+const MAIN_HUB_COORDS = [50.4501, 30.5234];
 
 const Icons = {
   medicine: <svg style={{ width: '16px', height: '16px' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.5 20.5l-6-6a4.5 4.5 0 016.5-6.5l6 6a4.5 4.5 0 01-6.5 6.5z" /><path d="M14 6l4 4" /></svg>,
@@ -28,6 +28,7 @@ const Icons = {
 const ClientDashboard = () => {
   const { requests, addRequest, inventory } = useGlobalContext();
   const { showNotification } = useNotify();
+  const { t } = useLang(); 
 
   const [activeTab, setActiveTab] = useState('NEW_ORDER');
   const [cartItem, setCartItem] = useState(null);
@@ -36,7 +37,6 @@ const ClientDashboard = () => {
   const [priority, setPriority] = useState('NORMAL');
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Для мапи в модалці
   const [mapModalOrder, setMapModalOrder] = useState(null);
 
   const filteredCatalog = inventory.filter(item =>
@@ -63,12 +63,12 @@ const ClientDashboard = () => {
     addRequest({
       id: `ORD-${Math.floor(Math.random() * 10000)}`,
       location: address,
-      coords: [49.0 + Math.random(), 31.0 + Math.random()], // Імітація координатів для карти
+      coords: [49.0 + Math.random(), 31.0 + Math.random()],
       items: cartItem.name,
       priority: priority,
       quantity: Number(quantity),
       currentStock: 0,
-      status: 'PENDING', // Статус замовлення
+      status: 'PENDING',
       timestamp: new Date().toISOString(),
     });
     showNotification(`Order for ${quantity}x ${cartItem.name} placed successfully`, 'success');
@@ -76,21 +76,19 @@ const ClientDashboard = () => {
     setActiveTab('MY_ORDERS');
   };
 
-  //  Фільтруємо замовлення користувача (ті, що не доставлені)
   const myOrders = requests.filter(r => r.status !== 'DELIVERED');
 
   return (
     <div style={{ display: 'flex', height: '100%', backgroundColor: '#09090b', color: '#d4d4d8', fontFamily: 'system-ui, sans-serif' }}>
 
-      {/* ЛІВА ЧАСТИНА: ТАБИ ТА КАТАЛОГ */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRight: '1px solid #27272a', position: 'relative' }}>
         <div style={{ display: 'flex', padding: '24px 24px 0 24px', borderBottom: '1px solid #27272a' }}>
           <button onClick={() => setActiveTab('NEW_ORDER')} style={{ padding: '12px 24px', fontSize: '0.9rem', fontWeight: '600', cursor: 'pointer', background: 'transparent', border: 'none', position: 'relative', color: activeTab === 'NEW_ORDER' ? '#3b82f6' : '#a1a1aa' }}>
-            Create Order
+            {t('create_order')}
             {activeTab === 'NEW_ORDER' && <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '2px', backgroundColor: '#3b82f6' }}></div>}
           </button>
           <button onClick={() => setActiveTab('MY_ORDERS')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', fontSize: '0.9rem', fontWeight: '600', cursor: 'pointer', background: 'transparent', border: 'none', position: 'relative', color: activeTab === 'MY_ORDERS' ? '#3b82f6' : '#a1a1aa' }}>
-            My Active Orders
+            {t('my_active_orders')}
             <span style={{ backgroundColor: '#27272a', color: '#f4f4f5', padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem' }}>{myOrders.length}</span>
             {activeTab === 'MY_ORDERS' && <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '2px', backgroundColor: '#3b82f6' }}></div>}
           </button>
@@ -101,10 +99,10 @@ const ClientDashboard = () => {
             <div className="animate-in">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px' }}>
                 <div>
-                  <h2 style={{ fontSize: '1.4rem', fontWeight: '700', color: '#f4f4f5', margin: '0 0 4px 0' }}>Live Supply Catalog</h2>
-                  <p style={{ color: '#a1a1aa', fontSize: '0.85rem', margin: 0 }}>Select items to start order configuration</p>
+                  <h2 style={{ fontSize: '1.4rem', fontWeight: '700', color: '#f4f4f5', margin: '0 0 4px 0' }}>{t('live_supply_catalog')}</h2>
+                  <p style={{ color: '#a1a1aa', fontSize: '0.85rem', margin: 0 }}>{t('select_items_to_start')}</p>
                 </div>
-                <input type="text" placeholder="Search catalog..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ padding: '10px 16px', backgroundColor: '#18181b', border: '1px solid #27272a', color: '#fff', borderRadius: '8px', outline: 'none' }} />
+                <input type="text" placeholder={t('search_catalog')} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ padding: '10px 16px', backgroundColor: '#18181b', border: '1px solid #27272a', color: '#fff', borderRadius: '8px', outline: 'none' }} />
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
@@ -122,12 +120,12 @@ const ClientDashboard = () => {
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                         <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', fontWeight: '700', color: '#a1a1aa', textTransform: 'uppercase' }}>
-                          {Icons[item.category.toLowerCase()] || Icons.equipment} {item.category}
+                          {Icons[item.category.toLowerCase()] || Icons.equipment} {t(item.category) || item.category}
                         </span>
                         {!outOfStock ? (
-                          <span style={{ fontSize: '0.65rem', fontWeight: '800', padding: '4px 8px', backgroundColor: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', borderRadius: '4px', textTransform: 'uppercase' }}>In Stock</span>
+                          <span style={{ fontSize: '0.65rem', fontWeight: '800', padding: '4px 8px', backgroundColor: 'rgba(34, 197, 94, 0.1)', color: '#22c55e', borderRadius: '4px', textTransform: 'uppercase' }}>{t('status_in_stock')}</span>
                         ) : (
-                          <span style={{ fontSize: '0.65rem', fontWeight: '800', padding: '4px 8px', backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', borderRadius: '4px', textTransform: 'uppercase' }}>Empty</span>
+                          <span style={{ fontSize: '0.65rem', fontWeight: '800', padding: '4px 8px', backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', borderRadius: '4px', textTransform: 'uppercase' }}>{t('empty_label')}</span>
                         )}
                       </div>
                       <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#f4f4f5', margin: '0 0 4px 0' }}>{item.name}</h3>
@@ -135,11 +133,11 @@ const ClientDashboard = () => {
 
                       <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
                         <div>
-                          <div style={{ fontSize: '0.65rem', color: '#a1a1aa', textTransform: 'uppercase', fontWeight: '700' }}>Available</div>
-                          <div style={{ fontSize: '0.9rem', fontWeight: '700', color: !outOfStock ? '#e4e4e7' : '#ef4444' }}>{item.qty.toLocaleString()} units</div>
+                          <div style={{ fontSize: '0.65rem', color: '#a1a1aa', textTransform: 'uppercase', fontWeight: '700' }}>{t('available_label')}</div>
+                          <div style={{ fontSize: '0.9rem', fontWeight: '700', color: !outOfStock ? '#e4e4e7' : '#ef4444' }}>{item.qty.toLocaleString()} {t('units').toLowerCase()}</div>
                         </div>
                         <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontSize: '0.65rem', color: '#a1a1aa', textTransform: 'uppercase', fontWeight: '700' }}>Hub</div>
+                          <div style={{ fontSize: '0.65rem', color: '#a1a1aa', textTransform: 'uppercase', fontWeight: '700' }}>{t('hub_label')}</div>
                           <div style={{ fontSize: '0.85rem', fontWeight: '600', color: '#d4d4d8' }}>{item.warehouse.split(' ')[0]}</div>
                         </div>
                       </div>
@@ -150,31 +148,28 @@ const ClientDashboard = () => {
             </div>
           ) : (
             <div className="animate-in">
-              <h2 style={{ fontSize: '1.4rem', fontWeight: '700', color: '#f4f4f5', marginBottom: '24px' }}>Active Orders</h2>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: '700', color: '#f4f4f5', marginBottom: '24px' }}>{t('my_active_orders')}</h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '800px' }}>
 
                 {myOrders.map(order => {
                   const isTransit = order.status === 'IN_TRANSIT';
                   const isPending = order.status === 'PENDING' || order.status === 'DRAFT';
-                  // Логіка для прогрес-бару (точечок)
                   const progressWidth = isTransit ? '50%' : (isPending ? '0%' : '100%');
 
                   return (
                     <div key={order.id} style={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '16px', padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
-                      {/* Хедер замовлення */}
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div>
-                          <h3 style={{ margin: '0 0 4px 0', fontSize: '1.2rem', color: '#f4f4f5' }}>{order.items} <span style={{ fontSize: '0.85rem', color: '#71717a' }}>x{order.quantity}</span></h3>
-                          <p style={{ margin: 0, fontSize: '0.85rem', color: '#a1a1aa' }}>Destination: {order.location}</p>
+                          <h3 style={{ margin: '0 0 4px 0', fontSize: '1.2rem', color: '#f4f4f5' }}>{t(order.items) || order.items} <span style={{ fontSize: '0.85rem', color: '#71717a' }}>x{order.quantity}</span></h3>
+                          <p style={{ margin: 0, fontSize: '0.85rem', color: '#a1a1aa' }}>{t('destination') || 'Destination'}: {order.location}</p>
                           <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: '#71717a' }}>ID: {order.id}</p>
                         </div>
                         <span style={{ padding: '6px 12px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '800', backgroundColor: isTransit ? 'rgba(59, 130, 246, 0.1)' : 'rgba(249, 115, 22, 0.1)', color: isTransit ? '#3b82f6' : '#f97316', border: `1px solid ${isTransit ? 'rgba(59, 130, 246, 0.2)' : 'rgba(249, 115, 22, 0.2)'}` }}>
-                          {order.status.replace(/_/g, ' ')}
+                          {t(order.status) || order.status.replace(/_/g, ' ')}
                         </span>
                       </div>
 
-                      {/* ТАЙМЛАЙН З ТОЧЕЧКАМИ ВІДНОВЛЕНО */}
                       <div style={{ position: 'relative', padding: '10px 0' }}>
                         <div style={{ position: 'absolute', top: '18px', left: '10px', right: '10px', height: '4px', backgroundColor: '#27272a', borderRadius: '2px' }}></div>
                         <div style={{ position: 'absolute', top: '18px', left: '10px', height: '4px', backgroundColor: '#3b82f6', borderRadius: '2px', transition: 'width 0.5s', width: progressWidth }}></div>
@@ -182,27 +177,26 @@ const ClientDashboard = () => {
                         <div style={{ position: 'relative', display: 'flex', justifyContent: 'space-between' }}>
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '60px' }}>
                             <div style={{ width: '16px', height: '16px', borderRadius: '50%', backgroundColor: '#3b82f6', border: '3px solid #18181b', zIndex: 1, marginBottom: '8px' }}></div>
-                            <span style={{ fontSize: '0.75rem', fontWeight: '600', color: '#d4d4d8' }}>Processing</span>
+                            <span style={{ fontSize: '0.75rem', fontWeight: '600', color: '#d4d4d8' }}>{t('step_processing') || 'Processing'}</span>
                           </div>
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '60px' }}>
                             <div style={{ width: '16px', height: '16px', borderRadius: '50%', backgroundColor: isTransit ? '#3b82f6' : '#3f3f46', border: '3px solid #18181b', zIndex: 1, marginBottom: '8px' }}></div>
-                            <span style={{ fontSize: '0.75rem', fontWeight: '600', color: isTransit ? '#d4d4d8' : '#71717a' }}>Dispatched</span>
+                            <span style={{ fontSize: '0.75rem', fontWeight: '600', color: isTransit ? '#d4d4d8' : '#71717a' }}>{t('step_dispatched') || 'Dispatched'}</span>
                           </div>
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '60px' }}>
                             <div style={{ width: '16px', height: '16px', borderRadius: '50%', backgroundColor: '#3f3f46', border: '3px solid #18181b', zIndex: 1, marginBottom: '8px' }}></div>
-                            <span style={{ fontSize: '0.75rem', fontWeight: '600', color: '#71717a' }}>Delivered</span>
+                            <span style={{ fontSize: '0.75rem', fontWeight: '600', color: '#71717a' }}>{t('DELIVERED') || 'Delivered'}</span>
                           </div>
                         </div>
                       </div>
 
-                      {/* КНОПКИ: ЗВ'ЯЗОК І МАПА (Доступні, якщо машина в дорозі) */}
                       {isTransit && (
                         <div style={{ display: 'flex', gap: '12px', borderTop: '1px solid #27272a', paddingTop: '20px' }}>
                           <button onClick={() => setMapModalOrder(order)} style={{ flex: 1, padding: '12px', backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '8px', fontWeight: '600', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', transition: '0.2s' }}>
-                            {Icons.mapPin} Live Tracking
+                            {Icons.mapPin} {t('live_tracking') || 'Live Tracking'}
                           </button>
                           <button onClick={() => showNotification('Calling Driver (Taras - AI-1020)...', 'info')} style={{ flex: 1, padding: '12px', backgroundColor: 'transparent', color: '#a1a1aa', border: '1px solid #3f3f46', borderRadius: '8px', fontWeight: '600', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', transition: '0.2s' }}>
-                            {Icons.phone} Contact Driver
+                            {Icons.phone} {t('contact_driver') || 'Contact Driver'}
                           </button>
                         </div>
                       )}
@@ -210,26 +204,25 @@ const ClientDashboard = () => {
                     </div>
                   );
                 })}
-                {myOrders.length === 0 && <div style={{ color: '#71717a' }}>No active orders at the moment.</div>}
+                {myOrders.length === 0 && <div style={{ color: '#71717a' }}>{t('no_active_orders') || 'No active orders at the moment.'}</div>}
               </div>
             </div>
           )}
         </div>
       </div>
 
-      {/* ПРАВА ЧАСТИНА: ПАНЕЛЬ ОФОРМЛЕННЯ ЗАМОВЛЕННЯ */}
       <div style={{ width: '420px', backgroundColor: '#09090b', borderLeft: '1px solid #27272a', display: 'flex', flexDirection: 'column' }}>
         <div style={{ padding: '24px', borderBottom: '1px solid #27272a', backgroundColor: '#18181b' }}>
-          <h2 style={{ fontSize: '1.2rem', fontWeight: '700', margin: '0 0 4px 0' }}>Order Configuration</h2>
-          <p style={{ color: '#a1a1aa', fontSize: '0.85rem', margin: 0 }}>Finalize delivery details</p>
+          <h2 style={{ fontSize: '1.2rem', fontWeight: '700', margin: '0 0 4px 0' }}>{t('order_config')}</h2>
+          <p style={{ color: '#a1a1aa', fontSize: '0.85rem', margin: 0 }}>{t('finalize_delivery')}</p>
         </div>
 
         <div style={{ flex: 1, padding: '24px', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
           {!cartItem ? (
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', border: '1px dashed #3f3f46', borderRadius: '16px', backgroundColor: 'rgba(39, 39, 42, 0.3)' }}>
               <span style={{ fontSize: '2rem', marginBottom: '16px' }}>👈</span>
-              <p style={{ color: '#a1a1aa', fontWeight: '600', margin: 0 }}>Please select an item</p>
-              <p style={{ color: '#71717a', fontSize: '0.85rem', margin: '4px 0 0 0' }}>Click on any card in the catalog to begin</p>
+              <p style={{ color: '#a1a1aa', fontWeight: '600', margin: 0 }}>{t('please_select_item')}</p>
+              <p style={{ color: '#71717a', fontSize: '0.85rem', margin: '4px 0 0 0' }}>{t('click_any_card')}</p>
             </div>
           ) : (
             <div className="animate-in" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
@@ -245,7 +238,7 @@ const ClientDashboard = () => {
               <div style={{ backgroundColor: '#18181b', border: '1px solid #3b82f6', borderRadius: '12px', padding: '20px', marginBottom: '24px' }}>
                 <div style={{ fontSize: '0.75rem', fontWeight: '800', color: '#3b82f6', textTransform: 'uppercase', marginBottom: '8px' }}>Selected For Order</div>
                 <div style={{ fontSize: '1.2rem', fontWeight: '700', color: '#f4f4f5' }}>{cartItem.name}</div>
-                <div style={{ fontSize: '0.85rem', color: '#a1a1aa', marginTop: '4px' }}>Max available: {cartItem.qty.toLocaleString()} units</div>
+                <div style={{ fontSize: '0.85rem', color: '#a1a1aa', marginTop: '4px' }}>Max available: {cartItem.qty.toLocaleString()} {t('units').toLowerCase()}</div>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '32px' }}>
@@ -260,9 +253,9 @@ const ClientDashboard = () => {
                 <div>
                   <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '800', color: '#a1a1aa', textTransform: 'uppercase', marginBottom: '8px' }}>Urgency Level</label>
                   <select value={priority} onChange={(e) => setPriority(e.target.value)} style={{ width: '100%', backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '8px', padding: '14px 16px', color: '#f4f4f5', fontSize: '1rem', outline: 'none', boxSizing: 'border-box' }}>
-                    <option value="NORMAL">Standard Restock</option>
-                    <option value="HIGH">High Priority</option>
-                    <option value="CRITICAL">Critical Emergency (SOS)</option>
+                    <option value="NORMAL">{t('Normal')}</option>
+                    <option value="HIGH">{t('High Priority')}</option>
+                    <option value="CRITICAL">{t('Critical Alert')}</option>
                   </select>
                 </div>
               </div>
@@ -282,15 +275,14 @@ const ClientDashboard = () => {
         </div>
       </div>
 
-      {/* МОДАЛЬНЕ ВІКНО КАРТИ ДЛЯ КЛІЄНТА */}
       {mapModalOrder && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
           <div className="animate-in" style={{ width: '90%', maxWidth: '1000px', height: '80vh', backgroundColor: '#18181b', borderRadius: '16px', border: '1px solid #3f3f46', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.8)' }}>
 
             <div style={{ padding: '20px 24px', borderBottom: '1px solid #27272a', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#09090b' }}>
               <div>
-                <h3 style={{ margin: '0 0 4px 0', color: '#fff', fontSize: '1.2rem' }}>Live Tracking: <span style={{ color: '#3b82f6' }}>{mapModalOrder.items}</span></h3>
-                <span style={{ color: '#a1a1aa', fontSize: '0.85rem' }}>Destination: {mapModalOrder.location}</span>
+                <h3 style={{ margin: '0 0 4px 0', color: '#fff', fontSize: '1.2rem' }}>{t('live_tracking') || 'Live Tracking'}: <span style={{ color: '#3b82f6' }}>{t(mapModalOrder.items) || mapModalOrder.items}</span></h3>
+                <span style={{ color: '#a1a1aa', fontSize: '0.85rem' }}>{t('destination') || 'Destination'}: {mapModalOrder.location}</span>
               </div>
               <button onClick={() => setMapModalOrder(null)} style={{ background: 'transparent', border: '1px solid #3f3f46', color: '#a1a1aa', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}>Close Map</button>
             </div>
@@ -298,18 +290,12 @@ const ClientDashboard = () => {
             <div style={{ flex: 1, position: 'relative' }}>
               <MapContainer center={mapModalOrder.coords || [49.0, 31.0]} zoom={6} zoomControl={false} style={{ height: '100%', width: '100%', background: '#09090b' }}>
                 <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
-
-                {/* Маркер точки призначення */}
                 <Marker position={mapModalOrder.coords || [49.0, 31.0]} />
-
-                {/* Маркер Фури (імітуємо, що вона десь посередині маршруту) */}
                 <Marker
                   position={[(MAIN_HUB_COORDS[0] + (mapModalOrder.coords?.[0] || 49.0)) / 2, (MAIN_HUB_COORDS[1] + (mapModalOrder.coords?.[1] || 31.0)) / 2]}
                   icon={truckIcon}
                   zIndexOffset={1000}
                 />
-
-                {/* Лінія маршруту від Хабу до Клієнта */}
                 <Polyline
                   positions={[MAIN_HUB_COORDS, mapModalOrder.coords || [49.0, 31.0]]}
                   pathOptions={{ color: '#3b82f6', weight: 4, dashArray: '10, 15', opacity: 0.6 }}

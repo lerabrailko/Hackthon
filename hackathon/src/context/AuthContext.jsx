@@ -4,16 +4,21 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [mockPassword, setMockPassword] = useState('123');
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('DispatchX_user');
+    const savedUser = localStorage.getItem('logitech_user');
     if (savedUser) {
       try {
         setUser(JSON.parse(savedUser));
       } catch (error) {
-        console.error("Failed to parse user data from localStorage", error);
+        console.error("Failed to parse user data", error);
       }
+    }
+    
+    if (!localStorage.getItem('mock_passwords')) {
+      localStorage.setItem('mock_passwords', JSON.stringify({
+        admin: '123', disp: '123', client: '123', driver: '123'
+      }));
     }
   }, []);
 
@@ -28,21 +33,31 @@ export const AuthProvider = ({ children }) => {
         };
 
         if (username === 'admin') {
-          userData = { name: 'System Admin', role: 'ADMIN', token: '111', email: 'admin@dispatchx.com', phone: '+380501234567', avatar: null, ...defaultSettings };
+          userData = { username: 'admin', name: 'System Admin', role: 'ADMIN', token: '111', email: 'admin@dispatch.x', phone: '+380501234567', avatar: null, ...defaultSettings };
         } else if (username === 'disp') {
-          userData = { name: 'Valeriia', role: 'DISPATCHER', token: '222', email: 'valeriia@dispatchx.com', phone: '+380671234567', avatar: null, ...defaultSettings };
+          userData = { username: 'disp', name: 'Valeriia', role: 'DISPATCHER', token: '222', email: 'valeriia@dispatch.x', phone: '+380671234567', avatar: null, ...defaultSettings };
         } else if (username === 'client') {
-          userData = { name: 'Kyiv Hospital #3', role: 'CUSTOMER', token: '333', email: 'hospital3@kyiv.med', phone: '+380441234567', avatar: null, ...defaultSettings };
+          userData = { username: 'client', name: 'Kyiv Hospital #3', role: 'CUSTOMER', token: '333', email: 'hospital3@kyiv.med', phone: '+380441234567', avatar: null, ...defaultSettings };
         } else if (username === 'driver') {
-          userData = { name: 'Taras (Truck AI-1020)', role: 'DRIVER', token: '444', email: 'taras@dispatchx.com', phone: '+380931234567', avatar: null, ...defaultSettings };
+          userData = { username: 'driver', name: 'Taras (Truck AI-1020)', role: 'DRIVER', token: '444', email: 'taras@dispatch.x', phone: '+380931234567', avatar: null, ...defaultSettings };
         }
 
-        if (userData && password === mockPassword) { 
+        const passwordsDb = JSON.parse(localStorage.getItem('mock_passwords') || '{}');
+        const correctPassword = passwordsDb[username];
+
+        if (userData && correctPassword && password === correctPassword) { 
           setUser(userData);
-          localStorage.setItem('DispatchX_user', JSON.stringify(userData));
+          localStorage.setItem('logitech_user', JSON.stringify(userData));
           resolve(userData);
         } else {
-          reject(new Error('Invalid credentials. Try standard mock logins.'));
+          if (!userData && passwordsDb[username] && password === passwordsDb[username]) {
+             const restoredUser = { username, name: username, role: 'CUSTOMER', token: '555', ...defaultSettings };
+             setUser(restoredUser);
+             localStorage.setItem('logitech_user', JSON.stringify(restoredUser));
+             resolve(restoredUser);
+          } else {
+            reject(new Error('Invalid credentials.'));
+          }
         }
       }, 800);
     });
@@ -51,7 +66,14 @@ export const AuthProvider = ({ children }) => {
   const register = async (username, password, role) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
+        const passwordsDb = JSON.parse(localStorage.getItem('mock_passwords') || '{}');
+        if (passwordsDb[username]) {
+          reject(new Error('User already exists!'));
+          return;
+        }
+
         const newUser = {
+          username: username,
           name: username,
           role: role,
           token: `token_${Math.floor(Math.random() * 1000)}`,
@@ -62,9 +84,11 @@ export const AuthProvider = ({ children }) => {
           security: { twoFactor: false }
         };
 
-        setMockPassword(password);
+        passwordsDb[username] = password;
+        localStorage.setItem('mock_passwords', JSON.stringify(passwordsDb));
+        
         setUser(newUser);
-        localStorage.setItem('DispatchX_user', JSON.stringify(newUser));
+        localStorage.setItem('logitech_user', JSON.stringify(newUser));
         resolve(newUser);
       }, 800);
     });
@@ -72,23 +96,27 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('DispatchX_user');
+    localStorage.removeItem('logitech_user');
   };
 
   const updateProfile = (updates) => {
     if (!user) return;
     const updatedUser = { ...user, ...updates };
     setUser(updatedUser);
-    localStorage.setItem('DispatchX_user', JSON.stringify(updatedUser));
+    localStorage.setItem('logitech_user', JSON.stringify(updatedUser));
   };
 
   const changePassword = async (currentPass, newPass) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        if (currentPass !== mockPassword) {
+        const passwordsDb = JSON.parse(localStorage.getItem('mock_passwords') || '{}');
+        const userLoginId = user.username;
+
+        if (passwordsDb[userLoginId] !== currentPass) {
           reject(new Error('Incorrect current password')); 
         } else {
-          setMockPassword(newPass); 
+          passwordsDb[userLoginId] = newPass;
+          localStorage.setItem('mock_passwords', JSON.stringify(passwordsDb));
           resolve(true);
         }
       }, 600);

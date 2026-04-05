@@ -313,6 +313,16 @@ no_active_orders: 'Наразі немає активних замовлень.'
     urgency: 'ТЕРМІНОВІСТЬ',
     submit_request: 'ВІДПРАВИТИ ЗАПИТ',
 
+    exit_route: 'Вийти',
+fleet_status: 'СТАТУС ТРАНСПОРТУ',
+active_route: 'АКТИВНИЙ МАРШРУТ',
+stops_left: 'зупинок залишилось',
+stop_label: 'ЗУПИНКА',
+destination_address: 'АДРЕСА ПРИЗНАЧЕННЯ',
+quantity: 'КІЛЬКІСТЬ',
+confirm_unload: 'ПІДТВЕРДИТИ РОЗВАНТАЖЕННЯ',
+report_delay_issue: 'Повідомити про затримку / проблему',
+
     login_title: 'DispatchX', 
     login_id: 'ЛОГІН',
     password: 'ПАРОЛЬ',

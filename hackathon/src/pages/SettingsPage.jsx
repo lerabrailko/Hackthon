@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LanguageContext'; 
 import { useNotify } from '../context/NotificationContext';
-import { validateEmail, validatePhone, validatePassword } from '../utils/validators';
+import { validateEmail, validatePhone, validatePassword, validateRequired } from '../utils/validators';
 
 const SettingsPage = () => {
   const { user, updateProfile, changePassword } = useAuth();
@@ -82,12 +82,15 @@ const SettingsPage = () => {
 
   const handlePasswordUpdate = async () => {
     const errors = {};
-    if (!currentPassword) errors.currentPassword = 'Current password is required';
     
-    if (!newPassword) {
-      errors.newPassword = 'New password is required';
+    if (!validateRequired(currentPassword)) {
+      errors.currentPassword = t('error_required') || 'Field is required';
+    }
+    
+    if (!validateRequired(newPassword)) {
+      errors.newPassword = t('error_required') || 'Field is required';
     } else if (!validatePassword(newPassword)) {
-      errors.newPassword = 'Password must be at least 6 characters long';
+      errors.newPassword = t('error_password_length') || 'Password too short';
     }
 
     if (Object.keys(errors).length > 0) {
@@ -104,7 +107,11 @@ const SettingsPage = () => {
       setCurrentPassword('');
       setNewPassword('');
     } catch (error) {
-      setFieldErrors({ currentPassword: error.message });
+      if (error.message === 'INVALID_CURRENT_PASSWORD') {
+        setFieldErrors({ currentPassword: 'Invalid current password' });
+      } else {
+        showNotification(error.message, 'danger');
+      }
     } finally {
       setIsUpdatingPassword(false);
     }
@@ -114,9 +121,15 @@ const SettingsPage = () => {
     e.preventDefault();
     const errors = {};
 
-    if (!formData.name.trim()) errors.name = 'Name is required';
-    if (formData.email && !validateEmail(formData.email)) errors.email = 'Enter a valid email address';
-    if (formData.phone && !validatePhone(formData.phone)) errors.phone = 'Enter a valid phone number';
+    if (!validateRequired(formData.name)) {
+      errors.name = t('error_required') || 'Field is required';
+    }
+    if (formData.email && !validateEmail(formData.email)) {
+      errors.email = 'Invalid email address';
+    }
+    if (formData.phone && !validatePhone(formData.phone)) {
+      errors.phone = 'Invalid phone number';
+    }
 
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
@@ -193,9 +206,10 @@ const SettingsPage = () => {
                 <div className="settings-form-group">
                   <label className="settings-label">{t('system_role')}</label>
                   <select className="settings-select" value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value})}>
-                    <option value="LOGISTICIAN">Logistician (Admin)</option>
-                    <option value="WAREHOUSE">Warehouse Rep</option>
-                    <option value="DELIVERY_POINT">Delivery Point</option>
+                    <option value="ADMIN">System Admin</option>
+                    <option value="DISPATCHER">Dispatcher</option>
+                    <option value="CUSTOMER">Customer</option>
+                    <option value="DRIVER">Driver</option>
                   </select>
                 </div>
 
@@ -299,36 +313,38 @@ const SettingsPage = () => {
               <div className="settings-form-group">
                 <label className="settings-label">{t('sec_password')}</label>
                 
-                <div className="settings-form-group mb-10">
-                  <input
-                    type="password"
-                    className={`settings-input ${fieldErrors.currentPassword ? 'input-error' : ''}`}
-                    placeholder={t('sec_current_password')}
-                    value={currentPassword}
-                    onChange={e => { setCurrentPassword(e.target.value); setFieldErrors({...fieldErrors, currentPassword: null}); }}
-                  />
-                  {fieldErrors.currentPassword && <span className="field-error-text">{fieldErrors.currentPassword}</span>}
-                </div>
-                
-                <div className="password-row-action">
-                  <div className="settings-form-group flex-1">
+                <div className="settings-section">
+                  <div className="settings-form-group">
                     <input
                       type="password"
-                      className={`settings-input ${fieldErrors.newPassword ? 'input-error' : ''}`}
-                      placeholder={t('sec_new_password')}
-                      value={newPassword}
-                      onChange={e => { setNewPassword(e.target.value); setFieldErrors({...fieldErrors, newPassword: null}); }}
+                      className={`settings-input ${fieldErrors.currentPassword ? 'input-error' : ''}`}
+                      placeholder={t('sec_current_password')}
+                      value={currentPassword}
+                      onChange={e => { setCurrentPassword(e.target.value); setFieldErrors({...fieldErrors, currentPassword: null}); }}
                     />
-                    {fieldErrors.newPassword && <span className="field-error-text">{fieldErrors.newPassword}</span>}
+                    {fieldErrors.currentPassword && <span className="field-error-text">{fieldErrors.currentPassword}</span>}
                   </div>
-                  <button 
-                    type="button" 
-                    onClick={handlePasswordUpdate} 
-                    disabled={isUpdatingPassword}
-                    className={`btn-outline-secondary ${isUpdatingPassword ? 'btn-saving' : ''}`}
-                  >
-                    {isUpdatingPassword ? t('processing') : t('sec_update')}
-                  </button>
+                  
+                  <div className="password-row-action mt-small">
+                    <div className="settings-form-group flex-1">
+                      <input
+                        type="password"
+                        className={`settings-input ${fieldErrors.newPassword ? 'input-error' : ''}`}
+                        placeholder={t('sec_new_password')}
+                        value={newPassword}
+                        onChange={e => { setNewPassword(e.target.value); setFieldErrors({...fieldErrors, newPassword: null}); }}
+                      />
+                      {fieldErrors.newPassword && <span className="field-error-text">{fieldErrors.newPassword}</span>}
+                    </div>
+                    <button 
+                      type="button" 
+                      onClick={handlePasswordUpdate} 
+                      disabled={isUpdatingPassword}
+                      className={`btn-outline-secondary ${isUpdatingPassword ? 'btn-saving' : ''}`}
+                    >
+                      {isUpdatingPassword ? t('processing') : t('sec_update')}
+                    </button>
+                  </div>
                 </div>
 
               </div>
@@ -340,7 +356,7 @@ const SettingsPage = () => {
           <div className="settings-form-group">
             <button 
               type="submit" 
-              className={`settings-btn-save ${saveStatus === 'saving' ? 'btn-saving' : ''}`}
+              className={`settings-btn-save ${saveStatus === 'saving' ? 'btn-saving' : ''}`} 
               disabled={saveStatus === 'saving'}
             >
               {saveStatus === 'saving' ? t('processing') : t('save_btn')}

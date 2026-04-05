@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import { MOCK_REQUESTS } from '../data/mockData';
 
 const INITIAL_INVENTORY = [
@@ -15,16 +15,31 @@ const INITIAL_INVENTORY = [
 const GlobalContext = createContext();
 
 export const GlobalProvider = ({ children }) => {
-  // Новий алгоритм
-  const [requests, setRequests] = useState(() => 
-    MOCK_REQUESTS.map(req => ({
+
+  const [requests, setRequests] = useState(() => {
+    const saved = localStorage.getItem('dispatchx_requests');
+    if (saved) return JSON.parse(saved);
+    
+    return MOCK_REQUESTS.map(req => ({
       ...req,
-      burnRate: req.burnRate !== undefined ? req.burnRate : Math.floor(Math.random() * 8) + 1, // 1-8 од/год
-      hasDeferred: req.hasDeferred !== undefined ? req.hasDeferred : Math.random() > 0.85 // 15% шанс
-    }))
-  );
+      burnRate: req.burnRate !== undefined ? req.burnRate : Math.floor(Math.random() * 8) + 1,
+      hasDeferred: req.hasDeferred !== undefined ? req.hasDeferred : Math.random() > 0.85
+    }));
+  });
   
-  const [inventory, setInventory] = useState(INITIAL_INVENTORY);
+  const [inventory, setInventory] = useState(() => {
+    const saved = localStorage.getItem('dispatchx_inventory');
+    if (saved) return JSON.parse(saved);
+    return INITIAL_INVENTORY;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('dispatchx_requests', JSON.stringify(requests));
+  }, [requests]);
+
+  useEffect(() => {
+    localStorage.setItem('dispatchx_inventory', JSON.stringify(inventory));
+  }, [inventory]);
 
   const addRequest = (newRequest) => setRequests(prev => [newRequest, ...prev]);
 

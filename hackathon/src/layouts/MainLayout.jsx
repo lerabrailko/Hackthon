@@ -4,6 +4,7 @@ import { ROUTES } from '../constants/routes';
 import { useAuth } from '../context/AuthContext';
 import { useLang } from '../context/LanguageContext';
 import { useNotify } from '../context/NotificationContext';
+import { useOffline } from '../hooks/UseOffline';
 
 const Icons = {
   tracking: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>,
@@ -85,6 +86,8 @@ const MainLayout = ({ children }) => {
   const { user, logout } = useAuth();
   const { t } = useLang();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  
+  const isOffline = useOffline();
 
   const navItems = [
     { name: t('menu_dispatch'), path: ROUTES.DASHBOARD, icon: Icons.tracking },
@@ -99,7 +102,17 @@ const MainLayout = ({ children }) => {
   const handleLogout = () => { logout(); navigate(ROUTES.LOGIN); };
 
   if (user?.role === 'DRIVER') {
-    return <div className="driver-layout-wrapper">{children}</div>;
+    return (
+      <div className="driver-layout-wrapper">
+        {isOffline && (
+          <div style={{ backgroundColor: '#ef4444', color: '#fff', padding: '10px 20px', textAlign: 'center', fontSize: '0.85rem', fontWeight: '700', zIndex: 50, display: 'flex', justifyContent: 'center', gap: '8px' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 1l22 22"></path><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path><path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
+            OFFLINE MODE: Syncing paused.
+          </div>
+        )}
+        {children}
+      </div>
+    );
   }
 
   return (
@@ -154,6 +167,13 @@ const MainLayout = ({ children }) => {
       </aside>
 
       <main className="app-main-content">
+        {isOffline && (
+          <div style={{ backgroundColor: '#ef4444', color: '#fff', padding: '10px 20px', textAlign: 'center', fontSize: '0.85rem', fontWeight: '700', zIndex: 50, display: 'flex', justifyContent: 'center', gap: '8px' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 1l22 22"></path><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path><path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
+            NO INTERNET CONNECTION: App is running in offline mode.
+          </div>
+        )}
+        
         <div className="top-bar-controls">
           <NotificationCenter />
         </div>

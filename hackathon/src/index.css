@@ -115,11 +115,13 @@ body {
 }
 
 .brand-icon {
-  width: 24px;
-  height: 24px;
-  background-color: var(--accent);
-  border-radius: 6px;
+  width: 32px; 
+  height: 32px;
+  background-color: transparent;
+  border-radius: 8px; 
   flex-shrink: 0;
+  object-fit: cover; 
+  overflow: hidden; 
 }
 
 .brand-text {

@@ -105,8 +105,8 @@ const MainLayout = ({ children }) => {
   return (
     <div className="app-layout">
       <div className="mobile-header">
-        <div className="brand-logo">
-          <div className="brand-icon"></div>
+        <div className="sidebar-brand">
+          <img src="/favicon.svg" alt="Logo" className="brand-icon" />
           <div className="brand-text">Dispatch<span>X</span></div>
         </div>
         <button className="mobile-menu-btn" onClick={() => setIsMobileOpen(!isMobileOpen)}>
@@ -118,7 +118,7 @@ const MainLayout = ({ children }) => {
 
       <aside className={`app-sidebar ${isMobileOpen ? 'open' : ''}`}>
         <div className="sidebar-brand">
-          <div className="brand-icon"></div>
+          <img src="/favicon.svg" alt="Logo" className="brand-icon" />
           <div className="brand-text">Dispatch<span>X</span></div>
         </div>
 

@@ -5,7 +5,7 @@ import { useNotify } from '../context/NotificationContext';
 import { useLang } from '../context/LanguageContext';
 
 const CATEGORIES = ['All', 'Medicine', 'Food', 'Water', 'Equipment', 'Fuel'];
-const ABSOLUTE_MAX_QTY = 10000000; 
+const ABSOLUTE_MAX_QTY = 10000000;
 
 const Icons = {
   plus: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>,
@@ -24,7 +24,7 @@ const InventoryPage = () => {
   const { inventory, updateInventoryQty, addInventoryItem } = useGlobalContext();
   const { showNotification } = useNotify();
   const { t } = useLang();
-  
+
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
 
@@ -37,8 +37,8 @@ const InventoryPage = () => {
   const gridColumns = canManageInventory ? '2fr 1.2fr 1fr 1.6fr 80px' : '2fr 1.2fr 1fr 1.6fr';
 
   const filteredData = inventory.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase()) || 
-                          item.sku.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase()) ||
+      item.sku.toLowerCase().includes(search.toLowerCase());
     const matchesCategory = category === 'All' || item.category === category;
     return matchesSearch && matchesCategory;
   });
@@ -52,7 +52,7 @@ const InventoryPage = () => {
 
   const handleAddClick = () => {
     setModalMode('ADD');
-    setFormData({ sku: `NEW-${Math.floor(Math.random()*1000)}`, name: '', category: 'Medicine', warehouse: 'Kyiv Central', qty: '0', maxQty: '1000' });
+    setFormData({ sku: `NEW-${Math.floor(Math.random() * 1000)}`, name: '', category: 'Medicine', warehouse: 'Kyiv Central', qty: '0', maxQty: '1000' });
     setFieldErrors({});
     setIsModalOpen(true);
   };
@@ -69,11 +69,9 @@ const InventoryPage = () => {
       } else if (formData.name.trim().length > 50) {
         errors.name = 'Name is too long';
       }
-
       if (!formData.warehouse.trim()) {
         errors.warehouse = 'Warehouse is required';
       }
-
       if (isNaN(maxCapacity) || maxCapacity <= 0) {
         errors.maxQty = 'Must be > 0';
       } else if (maxCapacity > ABSOLUTE_MAX_QTY) {
@@ -110,7 +108,7 @@ const InventoryPage = () => {
     } else {
       const newItem = {
         ...formData,
-        qty: currentQty, 
+        qty: currentQty,
         maxQty: maxCapacity,
         status: currentQty === 0 ? 'OUT_OF_STOCK' : (currentQty < maxCapacity * 0.2 ? 'LOW_STOCK' : 'IN_STOCK')
       };
@@ -121,42 +119,38 @@ const InventoryPage = () => {
   };
 
   return (
-    <div className="app-main animate-in">
-      
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
-        <div>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '6px' }}>
+    <div className="app-main inventory-page animate-in">
+
+      {/* HEADER */}
+      <div className="inventory-header">
+        <div className="inventory-header-text">
+          <h1 className="inventory-title">
             {t('inventory_title') || 'Inventory Management'}
           </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+          <p className="inventory-subtitle">
             {canManageInventory ? (t('inventory_subtitle_manage') || 'Monitor and update supply stock levels') : (t('inventory_subtitle_view') || 'Current stock availability status')}
           </p>
         </div>
         {canManageInventory && (
-          <button onClick={handleAddClick} style={{
-            padding: '10px 20px', backgroundColor: 'var(--accent)', color: '#fff',
-            border: 'none', borderRadius: '8px', fontWeight: '700', cursor: 'pointer',
-            fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px'
-          }}>
+          <button onClick={handleAddClick} className="inventory-add-btn">
             {Icons.plus} {t('add_shipment') || 'Add Shipment'}
           </button>
         )}
       </div>
 
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
+      {/* FILTERS */}
+      <div className="inventory-filters">
         <input
           type="text"
           placeholder={t('search_placeholder') || 'Search by name or SKU...'}
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="settings-input"
-          style={{ maxWidth: '380px' }}
+          className="settings-input inventory-search"
         />
         <select
           value={category}
           onChange={e => setCategory(e.target.value)}
-          className="settings-select"
-          style={{ maxWidth: '200px' }}
+          className="settings-select inventory-select"
         >
           {CATEGORIES.map(c => (
             <option key={c} value={c}>{c === 'All' ? (t('all_categories') || 'All Categories') : (t(c) || c)}</option>
@@ -164,11 +158,13 @@ const InventoryPage = () => {
         </select>
       </div>
 
-      <div style={{
+      {/* TABLE */}
+      <div className="inventory-table-wrapper" style={{
         backgroundColor: 'var(--bg-panel)', border: '1px solid var(--border)',
-        borderRadius: '12px', overflow: 'hidden'
+        borderRadius: '12px'
       }}>
-        <div style={{
+        {/* Хедер таблиці */}
+        <div className="inventory-table-row" style={{
           display: 'grid', gridTemplateColumns: gridColumns,
           padding: '12px 24px', borderBottom: '1px solid var(--border)',
           backgroundColor: 'var(--bg-dark)'
@@ -179,12 +175,13 @@ const InventoryPage = () => {
           {canManageInventory && <span style={{ fontSize: '0.7rem', fontWeight: '700', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('col_action') || 'Action'}</span>}
         </div>
 
+        {/* Дані таблиці */}
         {filteredData.map((item, idx) => {
           const status = getStatus(item.qty, item.maxQty, t);
           const pct = item.maxQty > 0 ? Math.min((item.qty / item.maxQty) * 100, 100) : 0;
-          
+
           return (
-            <div key={item.sku} style={{
+            <div key={item.sku} className="inventory-table-row" style={{
               display: 'grid', gridTemplateColumns: gridColumns,
               padding: '16px 24px', alignItems: 'center',
               borderBottom: idx < filteredData.length - 1 ? '1px solid var(--border)' : 'none',
@@ -201,11 +198,9 @@ const InventoryPage = () => {
                   {item.sku} • {t(item.category) || item.category}
                 </div>
               </div>
-
               <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
                 {item.warehouse}
               </div>
-
               <div>
                 <span style={{
                   padding: '4px 8px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: '800',
@@ -214,7 +209,6 @@ const InventoryPage = () => {
                   {status.label}
                 </span>
               </div>
-
               <div>
                 <div style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '6px' }}>
                   {item.qty.toLocaleString()} / {item.maxQty.toLocaleString()}
@@ -223,7 +217,6 @@ const InventoryPage = () => {
                   <div style={{ height: '100%', width: `${pct}%`, backgroundColor: status.barColor, borderRadius: '3px', transition: 'width 0.3s' }} />
                 </div>
               </div>
-
               {canManageInventory && (
                 <div>
                   <button onClick={() => handleEditClick(item)} style={{
@@ -248,99 +241,59 @@ const InventoryPage = () => {
         )}
       </div>
 
+      {/* МОДАЛКА ЗАЛИШАЄТЬСЯ БЕЗ ЗМІН */}
       {isModalOpen && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="animate-in" style={{ backgroundColor: 'var(--bg-panel)', padding: '32px', borderRadius: '16px', width: '420px', border: '1px solid var(--border)', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
             <h2 style={{ fontSize: '1.2rem', marginBottom: '20px', color: 'var(--text-primary)', fontWeight: '700' }}>
               {modalMode === 'EDIT' ? (t('modal_update_stock') || 'Update Stock Level') : (t('modal_add_shipment') || 'Register New Shipment')}
             </h2>
-            
             <form onSubmit={handleModalSubmit} className="settings-section" noValidate>
-              
               {modalMode === 'ADD' && (
                 <>
                   <div className="settings-form-group">
                     <label className="settings-label">{t('modal_product_name') || 'Product Name'}</label>
-                    <input 
-                      type="text" 
-                      className={`settings-input ${fieldErrors.name ? 'input-error' : ''}`}
-                      value={formData.name} 
-                      onChange={e => { setFormData({...formData, name: e.target.value}); setFieldErrors({...fieldErrors, name: null}); }} 
-                    />
+                    <input type="text" className={`settings-input ${fieldErrors.name ? 'input-error' : ''}`} value={formData.name} onChange={e => { setFormData({ ...formData, name: e.target.value }); setFieldErrors({ ...fieldErrors, name: null }); }} />
                     {fieldErrors.name && <span className="field-error-text">{fieldErrors.name}</span>}
                   </div>
-                  
                   <div className="settings-form-group">
                     <label className="settings-label">{t('modal_warehouse') || 'Warehouse Location'}</label>
-                    <input 
-                      type="text" 
-                      className={`settings-input ${fieldErrors.warehouse ? 'input-error' : ''}`}
-                      value={formData.warehouse} 
-                      onChange={e => { setFormData({...formData, warehouse: e.target.value}); setFieldErrors({...fieldErrors, warehouse: null}); }} 
-                    />
+                    <input type="text" className={`settings-input ${fieldErrors.warehouse ? 'input-error' : ''}`} value={formData.warehouse} onChange={e => { setFormData({ ...formData, warehouse: e.target.value }); setFieldErrors({ ...fieldErrors, warehouse: null }); }} />
                     {fieldErrors.warehouse && <span className="field-error-text">{fieldErrors.warehouse}</span>}
                   </div>
-                  
                   <div className="settings-form-group">
                     <label className="settings-label">{t('modal_category') || 'Category'}</label>
-                    <select 
-                      value={formData.category} 
-                      onChange={e => setFormData({...formData, category: e.target.value})} 
-                      className="settings-select"
-                    >
+                    <select value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} className="settings-select">
                       {CATEGORIES.filter(c => c !== 'All').map(c => <option key={c} value={c}>{t(c) || c}</option>)}
                     </select>
                   </div>
-                  
                   <div className="settings-form-group">
                     <label className="settings-label">{t('modal_max_capacity') || 'Maximum Capacity'}</label>
-                    <input 
-                      type="number" 
-                      className={`settings-input ${fieldErrors.maxQty ? 'input-error' : ''}`}
-                      value={formData.maxQty} 
-                      onChange={e => { setFormData({...formData, maxQty: e.target.value}); setFieldErrors({...fieldErrors, maxQty: null}); }} 
-                    />
+                    <input type="number" className={`settings-input ${fieldErrors.maxQty ? 'input-error' : ''}`} value={formData.maxQty} onChange={e => { setFormData({ ...formData, maxQty: e.target.value }); setFieldErrors({ ...fieldErrors, maxQty: null }); }} />
                     {fieldErrors.maxQty && <span className="field-error-text">{fieldErrors.maxQty}</span>}
                   </div>
                 </>
               )}
-
               {modalMode === 'EDIT' && (
                 <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', padding: '12px', backgroundColor: 'var(--bg-dark)', borderRadius: '8px', border: '1px solid var(--border)' }}>
                   {t('modal_updating_sku') || 'Updating SKU'}: <strong style={{ color: 'var(--text-primary)' }}>{formData.sku}</strong><br />
                   <span style={{ fontSize: '0.85rem' }}>{formData.name}</span>
                 </div>
               )}
-
               <div className="settings-form-group">
                 <label className="settings-label">{t('modal_current_qty') || 'Current Quantity'}</label>
-                <input 
-                  type="number" 
-                  className={`settings-input ${fieldErrors.qty ? 'input-error' : ''}`}
-                  value={formData.qty} 
-                  onChange={e => { setFormData({...formData, qty: e.target.value}); setFieldErrors({...fieldErrors, qty: null}); }} 
-                />
+                <input type="number" className={`settings-input ${fieldErrors.qty ? 'input-error' : ''}`} value={formData.qty} onChange={e => { setFormData({ ...formData, qty: e.target.value }); setFieldErrors({ ...fieldErrors, qty: null }); }} />
                 {fieldErrors.qty && <span className="field-error-text">{fieldErrors.qty}</span>}
               </div>
-
               <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  style={{ flex: 1, padding: '12px', backgroundColor: 'transparent', border: '1px solid var(--border)', color: 'var(--text-secondary)', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}
-                >
+                <button type="button" onClick={() => setIsModalOpen(false)} style={{ flex: 1, padding: '12px', backgroundColor: 'transparent', border: '1px solid var(--border)', color: 'var(--text-secondary)', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}>
                   {t('cancel') || 'Cancel'}
                 </button>
-                <button
-                  type="submit"
-                  className="settings-btn-save"
-                  style={{ flex: 1 }}
-                >
+                <button type="submit" className="settings-btn-save" style={{ flex: 1 }}>
                   {t('save_btn') || 'Save Changes'}
                 </button>
               </div>
             </form>
-
           </div>
         </div>
       )}

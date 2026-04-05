@@ -24,10 +24,9 @@ const AnalyticsPage = () => {
   const [hoveredDay, setHoveredDay] = useState(null);
 
   return (
-    // Reduced paddingTop from 72px → 48px and paddingBottom to raise everything up
     <div className="app-main animate-in" style={{ paddingTop: '48px', paddingBottom: '32px' }}>
 
-      {/* HEADER — tighter margin */}
+      {/* HEADER */}
       <div style={{ marginBottom: '20px' }}>
         <h1 style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--text-primary)', margin: '0 0 6px 0', letterSpacing: '-0.5px' }}>
           {t('analytics_title')}
@@ -38,8 +37,7 @@ const AnalyticsPage = () => {
       </div>
 
       {/* KPI CARDS */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', marginBottom: '24px' }}>
-
+      <div className="analytics-kpi-grid">
         <div style={{ backgroundColor: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: '16px', padding: '20px' }}>
           <div style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '10px' }}>
             {t('on_time_delivery')}
@@ -75,7 +73,7 @@ const AnalyticsPage = () => {
       </div>
 
       {/* CHART + RISK FACTORS */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px' }}>
+      <div className="analytics-bottom-grid">
 
         {/* BAR CHART */}
         <div style={{ backgroundColor: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: '16px', padding: '28px' }}>
@@ -88,7 +86,6 @@ const AnalyticsPage = () => {
               const total = d.onTime + d.delayed;
               const totalPct = (total / maxVal) * 100;
               const delayedPct = total > 0 ? (d.delayed / total) * 100 : 0;
-              const onTimePct = total > 0 ? (d.onTime / total) * 100 : 0;
               const isHovered = hoveredDay === d.day;
 
               return (
@@ -98,9 +95,7 @@ const AnalyticsPage = () => {
                   onMouseEnter={() => setHoveredDay(d.day)}
                   onMouseLeave={() => setHoveredDay(null)}
                 >
-                  {/* Bar column — fills from bottom */}
                   <div style={{ flex: 1, width: '100%', display: 'flex', alignItems: 'flex-end', position: 'relative' }}>
-                    {/* Tooltip */}
                     <div style={{
                       position: 'absolute', bottom: `calc(${totalPct}% + 8px)`, left: '50%', transform: 'translateX(-50%)',
                       backgroundColor: 'var(--bg-card)', padding: '4px 8px', borderRadius: '6px',
@@ -111,26 +106,17 @@ const AnalyticsPage = () => {
                     }}>
                       {total}
                     </div>
-
-                    {/* Stacked bar */}
                     <div style={{
                       width: '100%', height: `${totalPct}%`, minHeight: totalPct > 0 ? '4px' : '0',
                       display: 'flex', flexDirection: 'column', borderRadius: '6px', overflow: 'hidden',
                       opacity: isHovered ? 0.85 : 1, transition: 'opacity 0.2s',
                     }}>
                       {d.delayed > 0 && (
-                        <div style={{
-                          height: `${delayedPct}%`, minHeight: '3px',
-                          backgroundColor: 'var(--danger)', flexShrink: 0,
-                        }} />
+                        <div style={{ height: `${delayedPct}%`, minHeight: '3px', backgroundColor: 'var(--danger)', flexShrink: 0 }} />
                       )}
-                      <div style={{
-                        flex: 1,
-                        backgroundColor: 'var(--accent)',
-                      }} />
+                      <div style={{ flex: 1, backgroundColor: 'var(--accent)' }} />
                     </div>
                   </div>
-
                   <span style={{ fontSize: '0.78rem', color: isHovered ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: '600', transition: '0.2s', flexShrink: 0 }}>
                     {d.day}
                   </span>
@@ -156,14 +142,12 @@ const AnalyticsPage = () => {
           <h2 style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--text-primary)', margin: '0 0 20px 0' }}>
             {t('recent_risks')}
           </h2>
-
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1 }}>
             {RISK_FACTORS.map((inc, i) => (
               <div key={i} style={{
                 padding: '14px',
                 backgroundColor: 'var(--bg-dark)',
                 borderRadius: '12px',
-                borderLeft: inc.status === 'active' ? '4px solid var(--danger)' : '4px solid var(--success)',
                 border: `1px solid var(--border)`,
                 borderLeft: inc.status === 'active' ? '4px solid var(--danger)' : '4px solid var(--success)',
                 transition: 'transform 0.2s ease',
@@ -183,11 +167,9 @@ const AnalyticsPage = () => {
                     {inc.status === 'active' ? t('status_active') : t('status_resolved')}
                   </span>
                 </div>
-
                 <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
                   {t('issue')}: <span style={{ color: 'var(--text-primary)', fontWeight: '600' }}>{t(inc.issue)}</span>
                 </div>
-
                 <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', opacity: 0.7 }}>
                   {inc.time}
                 </div>

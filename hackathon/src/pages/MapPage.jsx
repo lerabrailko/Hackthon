@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useGlobalContext } from '../context/GlobalStore';
 import { useNotify } from '../context/NotificationContext';
 import { useLang } from '../context/LanguageContext';
@@ -44,6 +44,9 @@ const MapPage = () => {
   const { t } = useLang();
   const [selectedNodeId, setSelectedNodeId] = useState(null);
 
+  // Створюємо реф для панелі телеметрії/подій
+  const telemetryRef = useRef(null);
+
   const MAIN_HUB_COORDS = [50.4501, 30.5234];
 
   const inTransit = requests.filter(r => r.status === 'IN_TRANSIT');
@@ -58,6 +61,15 @@ const MapPage = () => {
     showNotification('Crisis resolved. Fleet operations normalized.', 'success');
     setSelectedNodeId(null);
   };
+
+  // Ефект для плавного скролу на мобільних телефонах при виборі об'єкта
+  useEffect(() => {
+    if (selectedNodeId && telemetryRef.current && window.innerWidth <= 768) {
+      setTimeout(() => {
+        telemetryRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [selectedNodeId]);
 
   return (
     <div className="map-page-layout">
@@ -94,7 +106,7 @@ const MapPage = () => {
       {/* MAP + PANEL */}
       <div className="map-main-content">
 
-        {/* КАРТА — використовує map-fullscreen-wrapper */}
+        {/* КАРТА */}
         <div className="map-fullscreen-wrapper">
           <MapContainer
             center={[49.0, 31.0]}
@@ -104,7 +116,7 @@ const MapPage = () => {
           >
             <MapController center={selectedNode?.coords} />
 
-            {/* OSM тайли — темний вигляд через CSS filter у .leaflet-tile-pane */}
+            {/* OSM тайли */}
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -145,8 +157,8 @@ const MapPage = () => {
           </MapContainer>
         </div>
 
-        {/* TELEMETRY PANEL */}
-        <div className="telemetry-panel">
+        {/* TELEMETRY PANEL — прив'язали ref сюди */}
+        <div className="telemetry-panel" ref={telemetryRef}>
           {selectedNode ? (
             <div className="telemetry-content animate-in">
               <div className="telemetry-header">
@@ -186,8 +198,8 @@ const MapPage = () => {
                     <div className="crisis-protocol-box animate-in">
                       <div className="crisis-header">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                          <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                          <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
                         </svg>
                         <span>{t('crisis_protocol') || 'Crisis Protocol'}</span>
                       </div>

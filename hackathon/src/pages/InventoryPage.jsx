@@ -34,7 +34,9 @@ const InventoryPage = () => {
   const [formData, setFormData] = useState({ sku: '', name: '', category: 'Medicine', warehouse: 'Kyiv Central', qty: '', maxQty: '' });
 
   const canManageInventory = user?.role === 'ADMIN' || user?.role === 'DISPATCHER';
-  const gridColumns = canManageInventory ? '2fr 1.2fr 1fr 1.6fr 80px' : '2fr 1.2fr 1fr 1.6fr';
+  
+  // ВИПРАВЛЕНО: Остання колонка жорстко зафіксована на 110px
+  const gridColumns = canManageInventory ? '2fr 1.2fr 1fr 1.6fr 110px' : '2fr 1.2fr 1fr 1.6fr';
 
   const filteredData = inventory.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -121,7 +123,6 @@ const InventoryPage = () => {
   return (
     <div className="app-main inventory-page animate-in">
 
-      {/* HEADER */}
       <div className="inventory-header">
         <div className="inventory-header-text">
           <h1 className="inventory-title">
@@ -138,7 +139,6 @@ const InventoryPage = () => {
         )}
       </div>
 
-      {/* FILTERS */}
       <div className="inventory-filters">
         <input
           type="text"
@@ -163,7 +163,7 @@ const InventoryPage = () => {
         backgroundColor: 'var(--bg-panel)', border: '1px solid var(--border)',
         borderRadius: '12px'
       }}>
-        {/* Хедер таблиці */}
+      
         <div className="inventory-table-row" style={{
           display: 'grid', gridTemplateColumns: gridColumns,
           padding: '12px 24px', borderBottom: '1px solid var(--border)',
@@ -190,44 +190,46 @@ const InventoryPage = () => {
               onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.05)'}
               onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
             >
-              <div>
-                <div style={{ fontWeight: '700', fontSize: '0.95rem', color: 'var(--text-primary)', marginBottom: '2px' }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontWeight: '700', fontSize: '0.95rem', color: 'var(--text-primary)', marginBottom: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {item.name}
                 </div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {item.sku} • {t(item.category) || item.category}
                 </div>
               </div>
-              <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+              <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {item.warehouse}
               </div>
-              <div>
+              <div style={{ minWidth: 0 }}>
                 <span style={{
                   padding: '4px 8px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: '800',
-                  backgroundColor: `${status.barColor}18`, color: status.color, letterSpacing: '0.3px'
+                  backgroundColor: `${status.barColor}18`, color: status.color, letterSpacing: '0.3px',
+                  display: 'inline-block', whiteSpace: 'nowrap'
                 }}>
                   {status.label}
                 </span>
               </div>
-              <div>
-                <div style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '6px' }}>
+              <div style={{ minWidth: 0, paddingRight: '10px' }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '6px', whiteSpace: 'nowrap' }}>
                   {item.qty.toLocaleString()} / {item.maxQty.toLocaleString()}
                 </div>
-                <div style={{ height: '6px', backgroundColor: 'var(--bg-card)', borderRadius: '3px', overflow: 'hidden' }}>
+                <div style={{ height: '6px', backgroundColor: 'var(--bg-card)', borderRadius: '3px', overflow: 'hidden', width: '100%' }}>
                   <div style={{ height: '100%', width: `${pct}%`, backgroundColor: status.barColor, borderRadius: '3px', transition: 'width 0.3s' }} />
                 </div>
               </div>
               {canManageInventory && (
-                <div>
-                  <button onClick={() => handleEditClick(item)} style={{
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <button className="inventory-edit-btn" onClick={() => handleEditClick(item)} style={{
                     background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-secondary)',
-                    borderRadius: '6px', padding: '6px 12px', cursor: 'pointer', fontSize: '0.8rem',
-                    fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px', transition: 'all 0.2s'
+                    borderRadius: '6px', padding: '6px 10px', cursor: 'pointer', fontSize: '0.8rem',
+                    fontWeight: '600', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', transition: 'all 0.2s',
+                    width: '100%'
                   }}
                     onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)'; }}
                     onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
                   >
-                    {Icons.edit} {t('edit') || 'Edit'}
+                    {Icons.edit} <span>{t('edit') || 'Edit'}</span>
                   </button>
                 </div>
               )}
@@ -241,7 +243,6 @@ const InventoryPage = () => {
         )}
       </div>
 
-      {/* МОДАЛКА ЗАЛИШАЄТЬСЯ БЕЗ ЗМІН */}
       {isModalOpen && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="animate-in" style={{ backgroundColor: 'var(--bg-panel)', padding: '32px', borderRadius: '16px', width: '420px', border: '1px solid var(--border)', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>

@@ -11,6 +11,13 @@ const translations = {
     sign_out: 'Sign Out',
     close: 'Close',
 
+    step_processing: 'Processing',
+    step_dispatched: 'Dispatched',
+    destination: 'Destination',
+    live_tracking: 'Live Tracking',
+    contact_driver: 'Contact Driver',
+    no_active_orders: 'No active orders currently.',
+
     save_btn: 'Save Changes',
     processing: 'PROCESSING...',
     settings_title: 'System Settings',
@@ -86,6 +93,16 @@ const translations = {
     units_req_label: 'UNITS REQ.',
     urgency: 'URGENCY',
     submit_request: 'SUBMIT REQUEST',
+
+    exit_route: 'Exit',
+    fleet_status: 'FLEET STATUS',
+    active_route: 'ACTIVE ROUTE',
+    stops_left: 'stops left',
+    stop_label: 'STOP',
+    destination_address: 'DESTINATION ADDRESS',
+    quantity: 'QUANTITY',
+    confirm_unload: 'CONFIRM UNLOAD',
+    report_delay_issue: 'Report delay / issue',
 
     login_title: 'DispatchX', 
     login_id: 'LOGIN ID',
@@ -205,7 +222,6 @@ const translations = {
     report_issue: 'Report Issue',
     mark_arrived: 'Mark as Arrived',
 
-    // Нові ключі для ClientDashboard
     create_order: 'Create Order',
     my_active_orders: 'My Active Orders',
     live_supply_catalog: 'Live Supply Catalog',
@@ -218,6 +234,17 @@ const translations = {
     finalize_delivery: 'Finalize delivery details',
     please_select_item: 'Please select an item',
     click_any_card: 'Click on any card in the catalog to begin',
+
+    cargo_unloaded: 'Cargo successfully unloaded.',
+    issue_reported_toast: 'Issue reported. Dispatcher notified.',
+    no_active_routes: 'No Active Route',
+    awaiting_dispatch: 'Awaiting dispatch assignment from the control center.',
+    stops_label: 'Stops',
+    delivered_label: 'DELIVERED',
+    stock_at_destination: 'Stock level at destination',
+    critically_low: 'Critically low stock level',
+    issue_reported_banner: 'Issue reported — dispatcher has been notified.',
+    issue_reported_label: 'Issue Reported',
   },
 
   uk: {
@@ -231,11 +258,11 @@ const translations = {
     close: 'Закрити',
 
     step_processing: 'Обробка',
-step_dispatched: 'Відправлено',
-destination: 'Призначення',
-live_tracking: 'Відстеження',
-contact_driver: 'Зв\'язок з водієм',
-no_active_orders: 'Наразі немає активних замовлень.',
+    step_dispatched: 'Відправлено',
+    destination: 'Призначення',
+    live_tracking: 'Відстеження',
+    contact_driver: 'Зв\'язок з водієм',
+    no_active_orders: 'Наразі немає активних замовлень.',
 
     save_btn: 'Зберегти зміни',
     processing: 'ОБРОБКА...',
@@ -283,7 +310,7 @@ no_active_orders: 'Наразі немає активних замовлень.'
     Alert: 'Тривога',
 
     available_orders: 'Доступні замовлення',
-    truck_manifest: 'Маніфест вантажівки (AI-1020)',
+    truck_manifest: 'Вантажівка (AI-1020)',
     review_route: 'Перегляд маршруту та вантажу',
     payload_capacity: 'ВАНТАЖОПІДЙОМНІСТЬ',
     route_stops: 'Зупинки маршруту',
@@ -314,14 +341,14 @@ no_active_orders: 'Наразі немає активних замовлень.'
     submit_request: 'ВІДПРАВИТИ ЗАПИТ',
 
     exit_route: 'Вийти',
-fleet_status: 'СТАТУС ТРАНСПОРТУ',
-active_route: 'АКТИВНИЙ МАРШРУТ',
-stops_left: 'зупинок залишилось',
-stop_label: 'ЗУПИНКА',
-destination_address: 'АДРЕСА ПРИЗНАЧЕННЯ',
-quantity: 'КІЛЬКІСТЬ',
-confirm_unload: 'ПІДТВЕРДИТИ РОЗВАНТАЖЕННЯ',
-report_delay_issue: 'Повідомити про затримку / проблему',
+    fleet_status: 'СТАТУС ТРАНСПОРТУ',
+    active_route: 'АКТИВНИЙ МАРШРУТ',
+    stops_left: 'зупинок залишилось',
+    stop_label: 'ЗУПИНКА',
+    destination_address: 'АДРЕСА ПРИЗНАЧЕННЯ',
+    quantity: 'КІЛЬКІСТЬ',
+    confirm_unload: 'ПІДТВЕРДИТИ РОЗВАНТАЖЕННЯ',
+    report_delay_issue: 'Повідомити про затримку / проблему',
 
     login_title: 'DispatchX', 
     login_id: 'ЛОГІН',
@@ -454,6 +481,17 @@ report_delay_issue: 'Повідомити про затримку / пробле
     finalize_delivery: 'Завершити деталі доставки',
     please_select_item: 'Будь ласка, оберіть товар',
     click_any_card: 'Натисніть на будь-яку картку в каталозі, щоб почати',
+
+    cargo_unloaded: 'Вантаж успішно розвантажено.',
+    issue_reported_toast: 'Проблему зафіксовано. Диспетчера повідомлено.',
+    no_active_routes: 'Немає активних маршрутів',
+    awaiting_dispatch: 'Очікуємо призначення маршруту від диспетчерського центру.',
+    stops_label: 'Зупинок',
+    delivered_label: 'ДОСТАВЛЕНО',
+    stock_at_destination: 'Рівень запасів у пункті призначення',
+    critically_low: 'Критично низький рівень запасів',
+    issue_reported_banner: 'Проблему зафіксовано — диспетчера повідомлено.',
+    issue_reported_label: 'Проблему зафіксовано',
   }
 };
 

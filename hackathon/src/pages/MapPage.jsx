@@ -44,7 +44,6 @@ const MapPage = () => {
   const { t } = useLang();
   const [selectedNodeId, setSelectedNodeId] = useState(null);
 
-  // Створюємо реф для панелі телеметрії/подій
   const telemetryRef = useRef(null);
 
   const MAIN_HUB_COORDS = [50.4501, 30.5234];
@@ -62,7 +61,6 @@ const MapPage = () => {
     setSelectedNodeId(null);
   };
 
-  // Ефект для плавного скролу на мобільних телефонах при виборі об'єкта
   useEffect(() => {
     if (selectedNodeId && telemetryRef.current && window.innerWidth <= 768) {
       setTimeout(() => {
@@ -74,7 +72,6 @@ const MapPage = () => {
   return (
     <div className="map-page-layout">
 
-      {/* KPI HEADER */}
       <header className="map-kpi-header">
         <div className="kpi-block border-right">
           <span className="kpi-label">{t('total_nodes') || 'Active Network Nodes'}</span>
@@ -92,21 +89,34 @@ const MapPage = () => {
             {criticalAlerts.length} {t('active') || 'Active'}
           </span>
         </div>
-        <div className="kpi-block flex-row-center">
-          <div className={`status-dot ${criticalAlerts.length > 0 ? 'dot-danger' : 'dot-success'}`}></div>
-          <div>
-            <div className="kpi-label">{t('system_status') || 'System Status'}</div>
-            <div className={`status-text ${criticalAlerts.length > 0 ? 'text-danger' : 'text-success'}`}>
-              {criticalAlerts.length > 0 ? (t('action_required') || 'Action Required') : (t('Operational') || 'Operational')}
+     
+        <div className="kpi-block kpi-sync-sidebar">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', height: '100%', overflow: 'hidden' }}>
+            <div 
+              className={`status-dot ${criticalAlerts.length > 0 ? 'dot-danger pulse-ring' : 'dot-success'}`} 
+              style={{ flexShrink: 0 }}
+            ></div>
+            <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
+              <div 
+                className="kpi-label" 
+                style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: '2px' }}
+              >
+                {t('system_status') || 'System Status'}
+              </div>
+              <div 
+                className={`status-text ${criticalAlerts.length > 0 ? 'text-danger' : 'text-success'}`} 
+                style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: '1.2' }}
+              >
+                {criticalAlerts.length > 0 ? (t('action_required') || 'Action Required') : (t('Operational') || 'Operational')}
+              </div>
             </div>
           </div>
         </div>
+
       </header>
 
-      {/* MAP + PANEL */}
       <div className="map-main-content">
 
-        {/* КАРТА */}
         <div className="map-fullscreen-wrapper">
           <MapContainer
             center={[49.0, 31.0]}
@@ -116,20 +126,17 @@ const MapPage = () => {
           >
             <MapController center={selectedNode?.coords} />
 
-            {/* OSM тайли */}
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             />
 
-            {/* Hub marker */}
             <Marker
               position={MAIN_HUB_COORDS}
               icon={createMarker('HUB', selectedNodeId === 'MAIN_HUB')}
               eventHandlers={{ click: () => setSelectedNodeId('MAIN_HUB') }}
             />
 
-            {/* Routes */}
             {inTransit.map(req => {
               const positions = req.routePath || [MAIN_HUB_COORDS, req.coords];
               return (
@@ -141,7 +148,6 @@ const MapPage = () => {
               );
             })}
 
-            {/* Node markers */}
             {requests.filter(r => r.status !== 'DELIVERED').map(req => {
               const isCritical = req.currentStock < 20 || req.status === 'DELAYED';
               const markerType = isCritical ? 'CRITICAL' : (req.status === 'IN_TRANSIT' ? 'IN_TRANSIT' : 'DEFAULT');
@@ -157,14 +163,15 @@ const MapPage = () => {
           </MapContainer>
         </div>
 
-        {/* TELEMETRY PANEL — прив'язали ref сюди */}
         <div className="telemetry-panel" ref={telemetryRef}>
           {selectedNode ? (
             <div className="telemetry-content animate-in">
               <div className="telemetry-header">
-                <div>
+                <div style={{ minWidth: 0, paddingRight: '10px' }}>
                   <div className="telemetry-subtitle">{t('node_telemetry') || 'Node Telemetry'}</div>
-                  <h2 className="telemetry-title">{selectedNode.location}</h2>
+                  <h2 className="telemetry-title" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {selectedNode.location}
+                  </h2>
                 </div>
                 <button onClick={() => setSelectedNodeId(null)} className="btn-close-panel">
                   ✕ {t('close')}

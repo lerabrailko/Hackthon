@@ -1,153 +1,153 @@
-# DispatchX — Resilient Logistics & Inventory Management System
-
-> **Offline-first, crisis-resilient web platform for smart logistics chain and warehouse management.**
-
+# DispatchX — Стійка Система Логістики та Управління Запасами
+ 
+> **Офлайн-орієнтована, кризостійка вебплатформа для розумного управління логістичним ланцюгом і складами.**
+ 
 ---
-
-## Overview
-
-DispatchX is a decentralized, offline-first web system for managing logistics chains and inventory under conditions of constrained supply and unstable connectivity.
-
-The core architectural goal is **optimizing the distribution of limited resources**. Instead of classical FIFO, the system uses a deterministic mathematical model — the **Smart Triage Engine** — to dynamically calculate request priority based on stock burn rate, logistics topology, and time metrics.
-
-The system is designed for high adaptability (**Context-Aware UX**) across device form factors — from dispatcher workstations to mobile terminals for drivers in areas with unreliable internet.
-
+ 
+## Огляд
+ 
+DispatchX — це децентралізована, офлайн-орієнтована вебсистема для управління логістичними ланцюгами та запасами в умовах обмежених ресурсів і нестабільного з'єднання.
+ 
+Основна архітектурна мета — **оптимізація розподілу обмежених ресурсів**. Замість класичного FIFO система використовує детерміновану математичну модель — **Розумний Механізм Тріажу** — для динамічного розрахунку пріоритету запиту на основі швидкості витрати запасів, логістичної топології та часових метрик.
+ 
+Система розроблена з високою адаптивністю (**Context-Aware UX**) під різні форм-фактори пристроїв — від робочих станцій диспетчерів до мобільних терміналів водіїв у зонах із нестабільним інтернетом.
+ 
 ---
-
-## Tech Stack
-
-| Layer | Technology |
+ 
+## Технічний Стек
+ 
+| Рівень | Технологія |
 |---|---|
-| Framework | React 18+ (Vite) |
-| State Management | React Context API (`GlobalStore.jsx`, `AuthContext.jsx`) |
-| Routing | React Router + `ProtectedRoute.jsx` |
-| GIS / Maps | Leaflet / React-Leaflet + OpenStreetMap |
-| Offline | Service Workers + Workbox (Stale-While-Revalidate) |
-| PWA Install | Custom `UsePWAInstall.js` hook |
-
+| Фреймворк | React 18+ (Vite) |
+| Управління станом | React Context API (`GlobalStore.jsx`, `AuthContext.jsx`) |
+| Маршрутизація | React Router + `ProtectedRoute.jsx` |
+| ГІС / Карти | Leaflet / React-Leaflet + OpenStreetMap |
+| Офлайн | Service Workers + Workbox (Stale-While-Revalidate) |
+| PWA Встановлення | Власний хук `UsePWAInstall.js` |
+ 
 ---
-
-## Architecture
-
-### Offline-First (PWA)
-
-To support warehouse and in-transit operation without connectivity:
-
-- **Service Workers & Workbox** — pre-caches the app shell; API requests use *Stale-While-Revalidate*.
-- **`UseOffline.js`** — global network state listener; triggers UI warnings and blocks server-dependent mutations when offline.
-- **`UsePWAInstall.js`** — manages the `beforeinstallprompt` lifecycle, enabling installation as a native app on Windows / Android / iOS.
-
+ 
+## Архітектура
+ 
+### Офлайн-Орієнтованість (PWA)
+ 
+Для підтримки роботи складу та транспортування без з'єднання:
+ 
+- **Service Workers і Workbox** — попередньо кешують оболонку застосунку; API-запити використовують стратегію *Stale-While-Revalidate*.
+- **`UseOffline.js`** — глобальний слухач стану мережі; активує попередження в інтерфейсі та блокує мутації, що залежать від сервера, при відсутності з'єднання.
+- **`UsePWAInstall.js`** — керує життєвим циклом `beforeinstallprompt`, дозволяючи встановлення як нативного застосунку на Windows / Android / iOS.
+ 
 ---
-
-### Smart Triage Engine (`src/utils/priority.js`)
-
-The core computational module. Generates an aggregated **TotalScore** for each logistics transaction. Requests with the highest score are automatically promoted to the top of the dispatcher queue.
-
+ 
+### Розумний Механізм Тріажу (`src/utils/priority.js`)
+ 
+Основний обчислювальний модуль. Генерує агрегований **TotalScore** для кожної логістичної транзакції. Запити з найвищим балом автоматично піднімаються на початок черги диспетчера.
+ 
 ```
 TotalScore = BaseScore + WaitTimeBonus + BurnRateOverride + DeferralBonus + SpatialBonus
 ```
-
-| Component | Logic |
+ 
+| Компонент | Логіка |
 |---|---|
-| **BaseScore** | Status-based initialization: Normal `+10`, Elevated `+50`, Critical `+100` (quota-gated) |
-| **WaitTimeBonus** | Starvation prevention — `+2 pts` per full hour in queue since `request.timestamp` |
-| **BurnRateOverride** | Proactive depletion control — if Time-to-Empty < 2h **or** stock < 20 units → force `+200 pts`, overriding base status |
-| **DeferralBonus** | Game-theory cooperative incentive — if node previously yielded (`hasDeferred: true`) → `+30 pts` on next iteration |
-| **SpatialBonus** | Route topology optimization — if request lies on an already-dispatched vehicle's route vector (`routeMatch: true`) → `+80 pts` to maximize fleet utilization |
-
-> **BurnRateOverride** is the most critical trigger — it completely bypasses priority classifications when a stock depletion event is imminent.
-
+| **BaseScore** | Ініціалізація за статусом: Звичайний `+10`, Підвищений `+50`, Критичний `+100` (з обмеженням квоти) |
+| **WaitTimeBonus** | Запобігання голодуванню — `+2 бали` за кожну повну годину в черзі з моменту `request.timestamp` |
+| **BurnRateOverride** | Проактивний контроль виснаження — якщо Час-до-Нуля < 2 год **або** запас < 20 одиниць → примусово `+200 балів`, з перевизначенням базового статусу |
+| **DeferralBonus** | Кооперативний стимул теорії ігор — якщо вузол раніше поступився (`hasDeferred: true`) → `+30 балів` на наступній ітерації |
+| **SpatialBonus** | Оптимізація топології маршруту — якщо запит лежить на векторі маршруту вже відправленого транспортного засобу (`routeMatch: true`) → `+80 балів` для максимізації використання флоту |
+ 
+> **BurnRateOverride** — найкритичніший тригер: він повністю обходить класифікації пріоритетів при загрозі неминучого вичерпання запасів.
+ 
 ---
-
-### Role-Based Access Control (RBAC)
-
-`MainLayout.jsx` dynamically mounts different workspaces based on the authenticated `role`.
-
-#### 🖥️ Dispatcher (System Admin / Logistician)
-**High-Density "War Room" Dashboard**
-- **Global Radar** — interactive map with real-time vehicle digital twins; coordinates recalculate every 200ms along polylines for accurate ETA.
-- **Fleet Management** — manifest builder with max-capacity validation (Capacity Bar).
-- **Global Warehouse** — synchronized SKU table with per-hub distribution (e.g., *Lviv West Hub*, *Odesa Port Hub*) and availability status.
-
-#### 📱 Driver (Expeditor)
-**Mobile/Tablet-first HUD** — minimal cognitive load.
-- Active manifest navigation with large confirmation controls.
-- **SOS Crisis Protocol** — async issue report that fires an `issue_reported_toast` event in the dispatcher's UI, enabling immediate rerouting of a reserve vehicle.
-
-#### 🏭 Hub Representative (Customer / Recipient)
-**B2B e-Commerce Portal**
-- SKU catalog with nearest warehouse location.
-- **Cut-off Timer** — order lock logic; prevents mutation of a request object once the dispatcher has approved a manifest (`status: "Locked"`).
-
+ 
+### Рольова Модель Доступу (RBAC)
+ 
+`MainLayout.jsx` динамічно монтує різні робочі простори залежно від автентифікованої `ролі`.
+ 
+#### 🖥️ Диспетчер (Системний адміністратор / Логіст)
+**Високоінформативна Панель "Командний Центр"**
+- **Глобальний Радар** — інтерактивна карта з цифровими двійниками транспортних засобів у реальному часі; координати перераховуються кожні 200 мс вздовж поліліній для точного визначення часу прибуття.
+- **Управління Флотом** — конструктор маніфестів з валідацією максимальної ємності (індикатор завантаженості).
+- **Глобальний Склад** — синхронізована таблиця SKU з розподілом по хабах (наприклад, *Львів Захід Хаб*, *Одеса Порт Хаб*) та статусом доступності.
+ 
+#### 📱 Водій (Експедитор)
+**HUD-інтерфейс для мобільних пристроїв / планшетів** — мінімальне когнітивне навантаження.
+- Навігація по активному маніфесту з великими елементами підтвердження.
+- **SOS Кризовий Протокол** — асинхронний звіт про проблему, що ініціює подію `issue_reported_toast` в інтерфейсі диспетчера для негайного перенаправлення резервного транспортного засобу.
+ 
+#### 🏭 Представник Хабу (Клієнт / Одержувач)
+**B2B Портал електронної комерції**
+- Каталог SKU з найближчим розташуванням складу.
+- **Таймер Дедлайну** — логіка блокування замовлення; запобігає зміні об'єкта запиту після того, як диспетчер затвердив маніфест (`status: "Locked"`).
+ 
 ---
-
-## Project Structure
-
+ 
+## Структура Проєкту
+ 
 ```
-├── public/                # Static assets, PWA manifest (icons, favicon.svg)
+├── public/                # Статичні ресурси, PWA маніфест (іконки, favicon.svg)
 ├── src/
-│   ├── assets/            # Graphics and illustrations
-│   ├── components/        # Base UI components (Button.jsx, StatusBadge.jsx, DeliveryCard.jsx)
-│   ├── constants/         # Global system constants (routes.js, statuses.js)
-│   ├── context/           # Global state providers (GlobalStore.jsx, AuthContext.jsx)
-│   ├── data/              # Mock data for local dev & testing (mockData.js)
-│   ├── features/          # Isolated business modules (Map, Dashboards, Auth)
-│   ├── hooks/             # Custom React hooks (UseOffline.js, UsePWAInstall.js)
-│   ├── layouts/           # Page wrappers (MainLayout.jsx, AuthLayout.jsx)
-│   └── utils/             # Pure JS functions & algorithms (priority.js)
-├── index.html             # Entry point
-└── package.json           # Dependencies & scripts
+│   ├── assets/            # Графіка та ілюстрації
+│   ├── components/        # Базові UI-компоненти (Button.jsx, StatusBadge.jsx, DeliveryCard.jsx)
+│   ├── constants/         # Глобальні системні константи (routes.js, statuses.js)
+│   ├── context/           # Глобальні провайдери стану (GlobalStore.jsx, AuthContext.jsx)
+│   ├── data/              # Мок-дані для локальної розробки та тестування (mockData.js)
+│   ├── features/          # Ізольовані бізнес-модулі (Map, Dashboards, Auth)
+│   ├── hooks/             # Власні React-хуки (UseOffline.js, UsePWAInstall.js)
+│   ├── layouts/           # Обгортки сторінок (MainLayout.jsx, AuthLayout.jsx)
+│   └── utils/             # Чисті JS-функції та алгоритми (priority.js)
+├── index.html             # Точка входу
+└── package.json           # Залежності та скрипти
 ```
-
+ 
 ---
-
-## Getting Started
-
-### Prerequisites
-
+ 
+## Початок Роботи
+ 
+### Вимоги
+ 
 - Node.js 18+
 - npm 9+
-
-### Installation
-
+ 
+### Встановлення
+ 
 ```bash
-# Clone the repository
+# Клонувати репозиторій
 git clone <repository_url>
 cd dispatchx
-
-# Install dependencies
+ 
+# Встановити залежності
 npm install
 ```
-
-### Development
-
+ 
+### Розробка
+ 
 ```bash
-# Start dev server with HMR
+# Запустити dev-сервер з HMR
 npm run dev
 ```
-
-### Production Build
-
+ 
+### Збірка для Продакшену
+ 
 ```bash
-# Build for production (generates Service Workers via Workbox)
+# Зібрати для продакшену (генерує Service Workers через Workbox)
 npm run build
-
-# Preview the production build locally
+ 
+# Переглянути продакшен-збірку локально
 npm run preview
 ```
-
+ 
 ---
-
-## Roadmap
-
-- [ ] Real backend integration (REST / WebSocket)
-- [ ] Persistent offline queue with background sync
-- [ ] Driver GPS telemetry (native Geolocation API)
-- [ ] Multi-language support (i18n)
-- [ ] Unit tests for Smart Triage Engine (`priority.js`)
-
+ 
+## Дорожня Карта
+ 
+- [ ] Інтеграція реального бекенду (REST / WebSocket)
+- [ ] Постійна офлайн-черга з фоновою синхронізацією
+- [ ] GPS-телеметрія водія (нативний Geolocation API)
+- [ ] Підтримка кількох мов (i18n)
+- [ ] Модульні тести для Розумного Механізму Тріажу (`priority.js`)
+ 
 ---
-
-## License
-
+ 
+## Ліцензія
+ 
 [MIT](LICENSE)
